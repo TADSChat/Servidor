@@ -59,6 +59,10 @@ public class MainServidor extends JFrame {
 		};
 	}
 
+	/**
+	 * Classe main
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		new MainServidor();
 	}
