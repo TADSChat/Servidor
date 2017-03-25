@@ -32,4 +32,8 @@ public class JNumberField extends JTextField {
 			}
 		});
 	}
+	
+	public Integer getNumber(){
+		return Integer.parseInt(super.getText());
+	}
 }
