@@ -34,6 +34,8 @@ public class MainServidor extends JFrame {
 	Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public MainServidor() {
+		HibernateUtil.getSession();
+		
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setSize(300, 200);
