@@ -23,6 +23,7 @@
 		 -->
 
 		<!-- Lista das entidades que serão persistidas no Banco de Dados-->
-		<mapping class="br.univel.model.dto.Servidor" />
+		<mapping class="common.EntidadeServidor" />
+		<mapping class="common.EntidadeUsuario" />
 	</session-factory>
 </hibernate-configuration>

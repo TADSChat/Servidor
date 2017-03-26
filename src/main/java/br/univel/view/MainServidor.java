@@ -17,10 +17,12 @@ import javax.swing.JTextField;
 
 import br.univel.control.HibernateUtil;
 import br.univel.control.ObjectDao;
-import br.univel.model.dto.Servidor;
+import br.univel.model.Servidor;
+import common.EntidadeServidor;
 
 /**
  * Classe para execução do servidor
+ * 
  * @author Dread
  *
  */
@@ -30,18 +32,20 @@ public class MainServidor extends JFrame {
 
 	private JTextField tfIpServidor = new JTextField();
 	private JNumberField tnPortaServidor = new JNumberField();
-	
+
 	Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public MainServidor() {
 		HibernateUtil.getSession();
 		
+		//Servidor.start();
+
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setSize(300, 200);
 		this.setResizable(false);
 		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
-		
+
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0 };
@@ -99,7 +103,7 @@ public class MainServidor extends JFrame {
 		panel.add(btnConnect, gbc_btnConnect);
 		HibernateUtil.getSession();
 
-		Servidor servidor = (Servidor) ObjectDao.consultarByQuery("from Servidor where server_id = 1");
+		EntidadeServidor servidor = (EntidadeServidor) ObjectDao.consultarByQuery("from EntidadeServidor where server_id = 1");
 
 		if (servidor == null) {
 			tfIpServidor.enable(true);
@@ -132,7 +136,7 @@ public class MainServidor extends JFrame {
 					return;
 				}
 
-				Servidor servidor = new Servidor();
+				EntidadeServidor servidor = new EntidadeServidor();
 				servidor.setIdServer(1).setPortaServer(Integer.parseInt(tnPortaServidor.getText()))
 						.setIpServer(tfIpServidor.getText());
 
@@ -157,9 +161,9 @@ public class MainServidor extends JFrame {
 		};
 	}
 
-	
 	/**
 	 * Executa a conexao do servidor
+	 * 
 	 * @param ipServer
 	 * @param portaServer
 	 */
@@ -167,7 +171,7 @@ public class MainServidor extends JFrame {
 		this.dispose();
 		new PainelServidor(ipServer, portaServer);
 	}
-	
+
 	/**
 	 * Classe main
 	 * 
