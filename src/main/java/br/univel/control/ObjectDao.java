@@ -126,9 +126,9 @@ public final class ObjectDao {
 		List<Object> lista = new ArrayList<Object>();
 		try {
 			session = HibernateUtil.getSession();
-			lista = session.createQuery(parameterQuery).list();
+			lista = session.createQuery(parameterQuery).getResultList();
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		} finally {
 			session.close();
 		}
