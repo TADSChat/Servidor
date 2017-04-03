@@ -7,6 +7,10 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,7 +21,6 @@ import javax.swing.JTextField;
 
 import br.univel.control.HibernateUtil;
 import br.univel.control.ObjectDao;
-import br.univel.model.Servidor;
 import common.EntidadeServidor;
 
 /**
@@ -32,20 +35,21 @@ public class MainServidor extends JFrame {
 
 	private JTextField tfIpServidor = new JTextField();
 	private JNumberField tnPortaServidor = new JNumberField();
+	private InetAddress IP;
 
 	Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public MainServidor() {
 		HibernateUtil.getSession();
-		
-		//Servidor.start();
+
+		// Servidor.start();
 
 		this.setVisible(true);
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(300, 200);
 		this.setResizable(false);
-		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
-
+		this.setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
+		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0 };
@@ -103,16 +107,23 @@ public class MainServidor extends JFrame {
 		panel.add(btnConnect, gbc_btnConnect);
 		HibernateUtil.getSession();
 
-		EntidadeServidor servidor = (EntidadeServidor) ObjectDao.consultarByQuery("from EntidadeServidor where server_id = 1");
+		try {
+			IP = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			JOptionPane.showMessageDialog(null, "Erro ao ler IP do servidor! Ver aquivo de log.");
+		}
+		
+		EntidadeServidor servidor = (EntidadeServidor) ObjectDao
+				.consultarByQuery(String.format("from EntidadeServidor where server_ip = '%s'", IP.getHostAddress()));
+
+		tfIpServidor.setText(IP.getHostAddress());
+		tfIpServidor.enable(false);
 
 		if (servidor == null) {
-			tfIpServidor.enable(true);
 			tnPortaServidor.enable(true);
 			btnConnect.addActionListener(actionCriar());
 		} else {
-			tfIpServidor.enable(false);
 			tnPortaServidor.enable(false);
-			tfIpServidor.setText(servidor.getIpServer());
 			tnPortaServidor.setText(servidor.getPortaServer().toString());
 			btnConnect.addActionListener(actionConectar());
 		}
@@ -137,8 +148,7 @@ public class MainServidor extends JFrame {
 				}
 
 				EntidadeServidor servidor = new EntidadeServidor();
-				servidor.setIdServer(1).setPortaServer(Integer.parseInt(tnPortaServidor.getText()))
-						.setIpServer(tfIpServidor.getText());
+				servidor.setPortaServer(Integer.parseInt(tnPortaServidor.getText())).setIpServer(IP.getHostAddress());
 
 				ObjectDao.incluir(servidor);
 				conectar(servidor.getIpServer(), servidor.getPortaServer());
