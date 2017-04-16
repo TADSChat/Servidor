@@ -36,6 +36,7 @@ import common.EntidadeServidor;
 import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
+import common.Status;
 
 /**
  * Painel principal do servidor
@@ -249,20 +250,6 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 		taLog.append(" " + mensagem + "\n");
 	}
 
-	@Override
-	public void conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario) throws RemoteException {
-		if (mapaUsuarios.get(usuario) != null) {
-			setLog(String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuario.getNome()));
-			return;
-		}
-
-		mapaUsuarios.put(usuario, interfaceUsuario);
-
-		atualizarStatusUsuarios();
-
-		setLog(String.format("Usuario %s se conectou", usuario.getNome()));
-	}
-
 	private void atualizarStatusUsuarios() {
 		try {
 			for (InterfaceUsuario usuario : mapaUsuarios.values()) {
@@ -273,6 +260,21 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 			return;
 		}
 		setLog("Atualizando status dos usuarios");
+	}
+
+	@Override
+	public void conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario) throws RemoteException {
+		if (mapaUsuarios.get(usuario) != null) {
+			setLog(String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuario.getNome()));
+			return;
+		}
+
+		usuario.setStatus(Status.ONLINE);
+		mapaUsuarios.put(usuario, interfaceUsuario);
+
+		atualizarStatusUsuarios();
+
+		setLog(String.format("Usuario %s se conectou", usuario.getNome()));
 	}
 
 	@Override
@@ -331,5 +333,25 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 		mapaUsuarios.get(destinatario).receberArquivo(remetente, arquivo);
 		setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
+	}
+
+	@Override
+	public void atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
+		if (mapaUsuarios.get(usuario) == null) {
+			setLog(String.format("Usuario %s tentou alterar o status sem estar conectado", usuario.getNome()));
+			return;
+		}
+
+		String statusAntigo = "";
+		for (Entry<EntidadeUsuario, InterfaceUsuario> oldUsuario : mapaUsuarios.entrySet()) {
+			EntidadeUsuario usuarioAux = oldUsuario.getKey();
+			if (usuarioAux.getId() == usuario.getId()) {
+				statusAntigo = usuario.getStatus().toString();
+				break;
+			}
+		}
+
+		setLog(String.format("Usuario %s alterou o status de %s para %s", usuario.getNome(), statusAntigo,
+				usuario.getStatus()));
 	}
 }

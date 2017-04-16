@@ -24,7 +24,7 @@ import br.univel.control.ObjectDao;
 import common.EntidadeServidor;
 
 /**
- * Classe para execução do servidor
+ * Classe para execuï¿½ï¿½o do servidor
  * 
  * @author Dread
  *
@@ -42,14 +42,13 @@ public class MainServidor extends JFrame {
 	public MainServidor() {
 		HibernateUtil.getSession();
 
-		// Servidor.start();
-
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(300, 200);
 		this.setResizable(false);
-		this.setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
-		
+		this.setLocation((dimensaoTela.width - this.getSize().width) / 2,
+				(dimensaoTela.height - this.getSize().height) / 2);
+
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0 };
@@ -67,10 +66,10 @@ public class MainServidor extends JFrame {
 		gbl_panel.columnWidths = new int[] { 0, 0 };
 		gbl_panel.rowHeights = new int[] { 0, 0, 0, 0 };
 		gbl_panel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
 		panel.setLayout(gbl_panel);
 
-		JLabel lblNewLabel = new JLabel("New label");
+		JLabel lblNewLabel = new JLabel("IP do Servidor");
 		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel.gridx = 0;
@@ -85,7 +84,7 @@ public class MainServidor extends JFrame {
 		panel.add(tfIpServidor, gbc_tfIpServidor);
 		tfIpServidor.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("New label");
+		JLabel lblNewLabel_1 = new JLabel("Porta do Servidor");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_1.gridx = 0;
@@ -100,11 +99,11 @@ public class MainServidor extends JFrame {
 		panel.add(tnPortaServidor, gbc_tfPortaServidor);
 		tnPortaServidor.setColumns(10);
 
-		JButton btnConnect = new JButton("New button");
-		GridBagConstraints gbc_btnConnect = new GridBagConstraints();
-		gbc_btnConnect.gridx = 0;
-		gbc_btnConnect.gridy = 4;
-		panel.add(btnConnect, gbc_btnConnect);
+		JButton btnIniciarServidor = new JButton("Inciar");
+		GridBagConstraints gbc_btnIniciarServidor = new GridBagConstraints();
+		gbc_btnIniciarServidor.gridx = 0;
+		gbc_btnIniciarServidor.gridy = 4;
+		panel.add(btnIniciarServidor, gbc_btnIniciarServidor);
 		HibernateUtil.getSession();
 
 		try {
@@ -112,25 +111,25 @@ public class MainServidor extends JFrame {
 		} catch (UnknownHostException e) {
 			JOptionPane.showMessageDialog(null, "Erro ao ler IP do servidor! Ver aquivo de log.");
 		}
-		
+
 		EntidadeServidor servidor = (EntidadeServidor) ObjectDao
 				.consultarByQuery(String.format("from EntidadeServidor where server_ip = '%s'", IP.getHostAddress()));
 
 		tfIpServidor.setText(IP.getHostAddress());
-		tfIpServidor.enable(false);
+		tfIpServidor.setEnabled(false);
 
 		if (servidor == null) {
-			tnPortaServidor.enable(true);
-			btnConnect.addActionListener(actionCriar());
+			tnPortaServidor.setEnabled(true);
+			btnIniciarServidor.addActionListener(actionCriar());
 		} else {
-			tnPortaServidor.enable(false);
+			tnPortaServidor.setEnabled(false);
 			tnPortaServidor.setText(servidor.getPortaServer().toString());
-			btnConnect.addActionListener(actionConectar());
+			btnIniciarServidor.addActionListener(actionConectar());
 		}
 	}
 
 	/**
-	 * Adiciona a açao para criar registro ao botão
+	 * Adiciona a aï¿½ao para criar registro ao botï¿½o
 	 * 
 	 * @return ActionListener para o botao salvar
 	 */
@@ -158,7 +157,7 @@ public class MainServidor extends JFrame {
 	}
 
 	/**
-	 * Adiciona a açao para conectar no botão
+	 * Adiciona a aï¿½ao para conectar no botï¿½o
 	 * 
 	 * @return ActionListener para o botao salvar
 	 */

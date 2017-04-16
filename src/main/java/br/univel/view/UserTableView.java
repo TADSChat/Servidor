@@ -217,7 +217,10 @@ public class UserTableView extends JPanel {
 
 		listaUsuarios = (List<EntidadeUsuario>) ObjectDao.listar("from EntidadeUsuario");
 
-		listaUsuarios.forEach(usuario -> modelo.addRow(new String[] { usuario.getEmail(), Status.OFFLINE.toString() }));
+		listaUsuarios.forEach(usuario -> {
+			usuario.setStatus(Status.OFFLINE);
+			modelo.addRow(new String[] { usuario.getEmail(), usuario.getStatus().toString() });
+		});
 
 		tabelaUsuarios.getColumnModel().getColumn(0).setResizable(false);
 		tabelaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(100);
