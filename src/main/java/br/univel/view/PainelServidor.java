@@ -19,29 +19,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 
-import br.univel.control.ObjectDao;
 import common.EntidadeServidor;
 import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
-import common.Status;
 
 /**
  * Painel principal do servidor
@@ -63,13 +57,13 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 	private JPanel jpLog = new JPanel();
 
 	private Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
-	private SimpleDateFormat dataHora = new SimpleDateFormat("dd/MM/yyyy H:mm:ss:SSS");
-	private Map<String, InterfaceUsuario> mapaUsuarios = new HashMap<>();
+	private Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
 	private InterfaceServidor interfaceServidor;
 	private Registry registry;
 
 	// Tela de Log
-	private JTextArea taLog = new JTextArea();
+	private static SimpleDateFormat dataHora = new SimpleDateFormat("dd/MM/yyyy H:mm:ss:SSS");
+	private static JTextArea taLog = new JTextArea();
 
 	// Tela do Servidor
 	private JButton buttonIniciarServico = new JButton();
@@ -250,40 +244,92 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 		}
 	}
 
-	protected void setLog(String mensagem) {
+	protected static void setLog(String mensagem) {
 		taLog.append(dataHora.format(new Date()));
 		taLog.append(" " + mensagem + "\n");
 	}
 
 	@Override
 	public void conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario) throws RemoteException {
-		// TODO Auto-generated method stub
+		if (mapaUsuarios.get(usuario) != null) {
+			setLog(String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuario.getNome()));
+			return;
+		}
 
+		mapaUsuarios.put(usuario, interfaceUsuario);
+
+		atualizarStatusUsuarios();
+
+		setLog(String.format("Usuario %s se conectou", usuario.getNome()));
+	}
+
+	private void atualizarStatusUsuarios() {
+		try {
+			for (InterfaceUsuario usuario : mapaUsuarios.values()) {
+				usuario.receberListaParticipantes(new ArrayList<EntidadeUsuario>(mapaUsuarios.keySet()));
+			}
+		} catch (RemoteException e) {
+			setLog("Erro ao atualizar lista de usuarios");
+			return;
+		}
+		setLog("Atualizando status dos usuarios");
 	}
 
 	@Override
 	public void desconectarChat(EntidadeUsuario usuario) throws RemoteException {
-		// TODO Auto-generated method stub
+		if (mapaUsuarios.get(usuario) == null) {
+			setLog(String.format("Usuario %s tentou se desconectar sem uma sessao ativa", usuario.getNome()));
+			return;
+		}
 
+		mapaUsuarios.remove(usuario);
+
+		atualizarStatusUsuarios();
 	}
 
 	@Override
 	public void enviarMensagem(EntidadeUsuario remetente, EntidadeUsuario destinatario, String mensagem)
 			throws RemoteException {
-		// TODO Auto-generated method stub
+		if (mapaUsuarios.get(destinatario) == null) {
+			setLog(String.format("Usuario %s tentou enviar uma mensagem ao usuario inativo %s", remetente.getNome(),
+					destinatario.getNome()));
+			return;
+		}
 
+		mapaUsuarios.get(destinatario).receberMensagem(remetente, mensagem);
+		setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getNome(),
+				destinatario.getNome()));
 	}
 
 	@Override
 	public void enviarMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
-		// TODO Auto-generated method stub
-
+		for (Entry<EntidadeUsuario, InterfaceUsuario> usuarios : mapaUsuarios.entrySet()) {
+			if (usuarios.getKey().equals(remetente)) {
+				continue;
+			} else {
+				try {
+					usuarios.getValue().receberMensagem(remetente, mensagem);
+				} catch (Exception ex) {
+					setLog(String.format("Erro ao enviar a mensagem de %s para todos os contatos",
+							remetente.getNome()));
+				}
+			}
+		}
+		setLog(String.format("Usuario %s enviou uma mensagem para todos os contatos", remetente.getNome()));
 	}
 
 	@Override
 	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, File arquivo)
 			throws RemoteException {
-		// TODO Auto-generated method stub
 
+		if (mapaUsuarios.get(destinatario) == null) {
+			setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s", remetente.getNome(),
+					destinatario.getNome()));
+			return;
+		}
+
+		mapaUsuarios.get(destinatario).receberArquivo(remetente, arquivo);
+		setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
+				destinatario.getNome()));
 	}
 }
