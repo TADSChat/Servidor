@@ -44,20 +44,19 @@ import common.Status;
  * @author Dread
  *
  */
-public class PainelServidor extends JFrame implements InterfaceServidor {
+public class PainelServidorView extends JPanel implements InterfaceServidor {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int LARGURA = 600;
-	public static final int ALTURA = 600;
+
 
 	private JTabbedPane jtpTabs = new JTabbedPane();
 
 	private JPanel jpServidor = new JPanel();
-	private JPanel jpUsuarios = new UserTableView();
+	private JPanel jpUsuarios = new PainelUsuariosView();
 	private JPanel jpLog = new JPanel();
 
-	private Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
+	
 	private Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
 	private InterfaceServidor interfaceServidor;
 	private Registry registry;
@@ -72,57 +71,8 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 
 	private EntidadeServidor servidor = new EntidadeServidor();
 
-	public PainelServidor(String ipServer, Integer portaServer) {
-		setSize(LARGURA, ALTURA);
-		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
-
-		this.setVisible(true);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(LARGURA, ALTURA);
-		this.setResizable(false);
-
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				setLog("Aplicação servidor encerrada!");
-			}
-		});
-
-		servidor.setIpServer(ipServer).setPortaServer(portaServer);
-		iniciarServico();
-
-		adicionarComponentesServidor();
-		adicionarComponentesLog();
-
-		this.getContentPane().add(jtpTabs, BorderLayout.CENTER);
-
-		jtpTabs.addTab("SERVIDOR", jpServidor);
-		jtpTabs.addTab("USUARIOS", jpUsuarios);
-		jtpTabs.addTab("LOG", jpLog);
-	}
-
-	private void adicionarComponentesLog() {
-		GridBagLayout gbl_jpLog = new GridBagLayout();
-		gbl_jpLog.columnWidths = new int[] { 0, 0 };
-		gbl_jpLog.rowHeights = new int[] { 0, 0 };
-		gbl_jpLog.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_jpLog.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
-		jpLog.setLayout(gbl_jpLog);
-
-		JScrollPane scrollPane_1 = new JScrollPane();
-		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
-		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_1.gridx = 0;
-		gbc_scrollPane_1.gridy = 0;
-		jpLog.add(scrollPane_1, gbc_scrollPane_1);
-
-		scrollPane_1.setViewportView(taLog);
-	}
-
-	private void adicionarComponentesServidor() {
+	public PainelServidorView() {
 		jpServidor.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[] { 0, 0, 392, 0, 0 };
@@ -176,7 +126,7 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 		jpServidor.add(lblNewLabel_1, gbc_lblNewLabel_1);
 
 		JTextField tfPorta = new JTextField();
-		tfPorta.setText(servidor.getPortaServer().toString());
+		//tfPorta.setText(servidor.getPortaServer().toString());
 		tfPorta.setEnabled(false);
 		tfPorta.setPreferredSize(new Dimension(200, 24));
 		tfPorta.setMinimumSize(new Dimension(200, 24));
@@ -212,6 +162,24 @@ public class PainelServidor extends JFrame implements InterfaceServidor {
 		gbc_panel.gridy = 2;
 		jpServidor.add(panel, gbc_panel);
 
+	}
+
+	private void adicionarComponentesLog() {
+		GridBagLayout gbl_jpLog = new GridBagLayout();
+		gbl_jpLog.columnWidths = new int[] { 0, 0 };
+		gbl_jpLog.rowHeights = new int[] { 0, 0 };
+		gbl_jpLog.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_jpLog.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		jpLog.setLayout(gbl_jpLog);
+
+		JScrollPane scrollPane_1 = new JScrollPane();
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 0;
+		jpLog.add(scrollPane_1, gbc_scrollPane_1);
+
+		scrollPane_1.setViewportView(taLog);
 	}
 
 	private void iniciarServico() {

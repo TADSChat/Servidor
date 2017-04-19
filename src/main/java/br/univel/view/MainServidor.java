@@ -150,7 +150,9 @@ public class MainServidor extends JFrame {
 				servidor.setPortaServer(Integer.parseInt(tnPortaServidor.getText())).setIpServer(IP.getHostAddress());
 
 				ObjectDao.incluir(servidor);
-				conectar(servidor.getIpServer(), servidor.getPortaServer());
+				
+				dispose();
+				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
 			}
 
 		};
@@ -165,20 +167,10 @@ public class MainServidor extends JFrame {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				conectar(tfIpServidor.getText(), tnPortaServidor.getNumber());
+				dispose();
+				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
 			}
 		};
-	}
-
-	/**
-	 * Executa a conexao do servidor
-	 * 
-	 * @param ipServer
-	 * @param portaServer
-	 */
-	private void conectar(String ipServer, Integer portaServer) {
-		this.dispose();
-		new PainelServidor(ipServer, portaServer);
 	}
 
 	/**
