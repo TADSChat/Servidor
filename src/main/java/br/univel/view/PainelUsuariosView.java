@@ -21,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import br.univel.control.ObjectDao;
 import common.EntidadeUsuario;
 import common.Status;
+import javax.swing.border.EmptyBorder;
 
 public class PainelUsuariosView extends JPanel {
 
@@ -36,11 +37,13 @@ public class PainelUsuariosView extends JPanel {
 	private JButton btnDesconectar;
 
 	public PainelUsuariosView() {
+		setBorder(new EmptyBorder(10, 10, 10, 10));
+		this.setSize(PainelPrincipal.LARGURA, PainelPrincipal.ALTURA);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 113, 112, 112, 113, 0 };
-		gridBagLayout.rowHeights = new int[] { 274, 0, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.columnWidths = new int[] { 150, 150, 150, 251, 0 };
+		gridBagLayout.rowHeights = new int[] { 348, 0, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
 
@@ -53,7 +56,7 @@ public class PainelUsuariosView extends JPanel {
 		gbc_panel_1.gridy = 0;
 		add(panel_1, gbc_panel_1);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[] { 0, 0 };
+		gbl_panel_1.columnWidths = new int[] { 588, 0 };
 		gbl_panel_1.rowHeights = new int[] { 0, 0 };
 		gbl_panel_1.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 		gbl_panel_1.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
