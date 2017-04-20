@@ -99,7 +99,7 @@ public class MainServidor extends JFrame {
 		panel.add(tnPortaServidor, gbc_tfPortaServidor);
 		tnPortaServidor.setColumns(10);
 
-		JButton btnIniciarServidor = new JButton("Inciar");
+		JButton btnIniciarServidor = new JButton("Iniciar");
 		GridBagConstraints gbc_btnIniciarServidor = new GridBagConstraints();
 		gbc_btnIniciarServidor.gridx = 0;
 		gbc_btnIniciarServidor.gridy = 4;
