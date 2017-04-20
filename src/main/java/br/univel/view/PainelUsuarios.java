@@ -116,6 +116,7 @@ public class PainelUsuarios extends JPanel {
 		gbc_btnDesconectar.gridy = 1;
 		add(btnDesconectar, gbc_btnDesconectar);
 
+		DadosUsuario.getDadosUsuario(new EntidadeUsuario());
 	}
 
 	private ActionListener desconectarUsuario() {
@@ -124,19 +125,20 @@ public class PainelUsuarios extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
-				
-				if (usuario == null){
+
+				if (usuario == null) {
 					return;
 				}
-				
-				if (usuario.getStatus().equals(Status.OFFLINE)){
+
+				if (usuario.getStatus().equals(Status.OFFLINE)) {
 					return;
 				}
-				
+
 				try {
 					Servidor.getServidor().desconectarChat(usuario);
 				} catch (RemoteException e1) {
-					PainelServidor.setLog(String.format("Erro ao desconectar o usuario %s \n %s", usuario.getNome(), e1.toString()));
+					PainelServidor.setLog(
+							String.format("Erro ao desconectar o usuario %s \n %s", usuario.getNome(), e1.toString()));
 				}
 			}
 		};
@@ -149,15 +151,16 @@ public class PainelUsuarios extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
 
-				if (usuario == null){
+				if (usuario == null) {
 					return;
 				}
-				
+
 				int dialogButton = JOptionPane.YES_NO_OPTION;
-				JOptionPane.showConfirmDialog(null,
+				int resposta = JOptionPane.showConfirmDialog(null,
 						String.format("Confirma a exclusao do usuário %s?", usuario.getNome()), "Atenção",
 						dialogButton);
-				if (dialogButton == JOptionPane.YES_OPTION) {
+
+				if (resposta == JOptionPane.YES_OPTION) {
 					ObjectDao.getObjectDao().excluir(usuario);
 					atualizarTabela();
 				}
@@ -173,10 +176,11 @@ public class PainelUsuarios extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
 
-				if (usuario == null){
+				if (usuario == null) {
 					return;
 				}
 
+				System.out.println(usuario.getNome());
 				DadosUsuario dados = DadosUsuario.getDadosUsuario(usuario);
 
 				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);

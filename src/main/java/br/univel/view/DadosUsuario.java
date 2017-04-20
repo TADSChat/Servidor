@@ -235,7 +235,8 @@ public class DadosUsuario extends JPanel {
 	}
 
 	/**
-	 * @param usuario the usuario to set
+	 * @param usuario
+	 *            the usuario to set
 	 */
 	public static void setUsuario(EntidadeUsuario usuario) {
 		DadosUsuario.usuario = usuario;
