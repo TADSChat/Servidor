@@ -153,15 +153,15 @@ public class DadosUsuario extends JPanel {
 		if (usuario.getId() != null) {
 			tfNome.setText(usuario.getNome());
 			tfEmail.setText(usuario.getEmail());
-			tfSenha.setText("");
-			tfConfSenha.setText("");
 			incluir = false;
-		}else{
+		}else if(tfNome != null && tfEmail != null){
 			tfNome.setText("");
 			tfEmail.setText("");
+			incluir = true;
+		}
+		if(tfSenha != null && tfConfSenha != null){
 			tfSenha.setText("");
 			tfConfSenha.setText("");
-			incluir = true;
 		}
 	}
 
