@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
 import common.EntidadeUsuario;
+import common.Status;
 
 public class DadosUsuario extends JPanel {
 
@@ -27,7 +28,7 @@ public class DadosUsuario extends JPanel {
 	private JPasswordField tfConfSenha;
 
 	private static DadosUsuario dadosUsuario;
-	private EntidadeUsuario usuario;
+	private EntidadeUsuario usuario = null;
 	private Boolean incluir = true;
 
 	private DadosUsuario(EntidadeUsuario usuario) {
@@ -144,12 +145,13 @@ public class DadosUsuario extends JPanel {
 		gbc_bntCancelar.gridx = 0;
 		gbc_bntCancelar.gridy = 5;
 		panel.add(btnCancelar, gbc_bntCancelar);
-		
+
 		configurarCampos();
 	}
 
 	private void configurarCampos() {
-		if (usuario != null) {
+		System.out.println(usuario.getId());
+		if (usuario.getId() != null) {
 			tfNome.setText(usuario.getNome());
 			tfEmail.setText(usuario.getEmail());
 			tfSenha.setText("");
@@ -167,6 +169,7 @@ public class DadosUsuario extends JPanel {
 				tfEmail.setText("");
 				tfSenha.setText("");
 				tfConfSenha.setText("");
+				usuario = null;
 				PainelPrincipal.getPainelAbas().remove(2);
 			}
 		};
@@ -194,24 +197,26 @@ public class DadosUsuario extends JPanel {
 					}
 					senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
 				} else {
-					if (!Arrays.equals(null, tfSenha.getPassword())){
+					if (!Arrays.equals(null, tfSenha.getPassword())) {
 						if (!Arrays.equals(tfSenha.getPassword(), tfConfSenha.getPassword())) {
 							JOptionPane.showMessageDialog(null, "As senhas não coincidem!");
 							tfEmail.transferFocus();
 							tfSenha.setText("");
 							tfConfSenha.setText("");
 							return;
-						}	
+						}
 						senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
 					} else {
 						senha = usuario.getSenha();
 					}
 				}
 
-				if (incluir){
-					ObjectDao.incluir(usuario);										
+				usuario.setNome(tfNome.getText()).setEmail(tfEmail.getText()).setSenha(senha).setStatus(Status.OFFLINE);
+
+				if (incluir) {
+					ObjectDao.incluir(usuario);
 				} else {
-					ObjectDao.alterar(usuario);					
+					ObjectDao.alterar(usuario);
 				}
 
 				PainelPrincipal.getPainelAbas().remove(2);
@@ -223,11 +228,10 @@ public class DadosUsuario extends JPanel {
 	/**
 	 * @return the dadosUsuario
 	 */
-	public synchronized static DadosUsuario getDadosUsuario(EntidadeUsuario usuario) {
+	public synchronized static DadosUsuario getDadosUsuario(final EntidadeUsuario usuario) {
 		if (dadosUsuario == null) {
 			dadosUsuario = new DadosUsuario(usuario);
 		}
 		return dadosUsuario;
 	}
-
 }

@@ -33,13 +33,20 @@ public class Servidor implements InterfaceServidor, Runnable {
 	private static Servidor servidor;
 	private static Registry registry;
 
-	private Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
+	private static Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
 
 	private Servidor(String ipServidor, Integer portaServidor) {
 		this.ipServidor = ipServidor;
 		this.portaServidor = portaServidor;
 		this.threadMonitor = new Thread(this);
 		this.threadMonitor.start();
+	}
+
+	/**
+	 * @return the mapaUsuarios
+	 */
+	public static Map<EntidadeUsuario, InterfaceUsuario> getMapaUsuarios() {
+		return mapaUsuarios;
 	}
 
 	private void atualizarStatusUsuarios() {
@@ -55,20 +62,21 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	@Override
-	public void conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario) throws RemoteException {
+	public EntidadeUsuario conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario)
+			throws RemoteException {
+		PainelServidor.setLog("Alguem esta tentando se conectar");
 		String senha = Md5Util.getMD5Checksum(usuario.getSenha());
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(String.format(
 				"from EntidadeUsuario where user_email like %s and user_password like %s", usuario.getEmail(), senha));
 		if (usuarioValido == null) {
-			PainelServidor
-					.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
-			return;
+			PainelServidor.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
+			return null;
 		}
 
 		if (mapaUsuarios.get(usuarioValido) != null) {
 			PainelServidor.setLog(
 					String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getNome()));
-			return;
+			return null;
 		}
 
 		usuarioValido.setStatus(Status.ONLINE);
@@ -77,6 +85,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 		atualizarStatusUsuarios();
 
 		PainelServidor.setLog(String.format("Usuario %s se conectou", usuario.getNome()));
+
+		return usuarioValido;
 	}
 
 	@Override

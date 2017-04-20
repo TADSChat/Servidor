@@ -14,9 +14,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableModel;
 
 import br.univel.control.ObjectDao;
+import br.univel.model.Servidor;
 import common.EntidadeUsuario;
 import common.Status;
 
@@ -24,9 +24,10 @@ public class PainelUsuarios extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static DefaultTableModel modelo = createModel();
+	// private static DefaultTableModel modelo = createModel();
 	private static List<EntidadeUsuario> listaUsuarios = new ArrayList<>();
 	private JPanel panel_1;
+	private static ResultadoModel modelo;
 	private static JTable tabelaUsuarios;
 	private JButton btnNovo;
 	private JButton btnAlterar;
@@ -72,13 +73,7 @@ public class PainelUsuarios extends JPanel {
 		panel_1.add(scrollPane, gbc_scrollPane);
 
 		tabelaUsuarios = new JTable();
-		DefaultTableModel modelo = createModel();
-		tabelaUsuarios.setModel(modelo);
-		tabelaUsuarios.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Nome", "Email", "Status" }));
-		tabelaUsuarios.getColumnModel().getColumn(1).setResizable(false);
-		tabelaUsuarios.getColumnModel().getColumn(1).setPreferredWidth(100);
-		tabelaUsuarios.getColumnModel().getColumn(2).setResizable(false);
-		tabelaUsuarios.getColumnModel().getColumn(2).setPreferredWidth(70);
+		atualizarTabela();
 		scrollPane.setViewportView(tabelaUsuarios);
 
 		btnNovo = new JButton("Novo");
@@ -138,8 +133,18 @@ public class PainelUsuarios extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
+
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				JOptionPane.showConfirmDialog(null,
+						String.format("Confirma a exclusao do usuário %s?", usuario.getNome()), "Atenção",
+						dialogButton);
+				if (dialogButton == JOptionPane.YES_OPTION) {
+					ObjectDao.getObjectDao().excluir(usuario);
+					atualizarTabela();
+				}
 			}
 		};
+
 	}
 
 	private ActionListener alterarUsuario() {
@@ -152,7 +157,7 @@ public class PainelUsuarios extends JPanel {
 				DadosUsuario dados = DadosUsuario.getDadosUsuario(usuario);
 
 				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
-				PainelPrincipal.getPainelAbas().setSelectedIndex(2);				
+				PainelPrincipal.getPainelAbas().setSelectedIndex(2);
 			}
 		};
 	}
@@ -181,26 +186,8 @@ public class PainelUsuarios extends JPanel {
 		return new EntidadeUsuario().setNome(tabelaUsuarios.getModel().getValueAt(linha, 0).toString())
 				.setEmail(tabelaUsuarios.getModel().getValueAt(linha, 1).toString())
 				.setStatus(Status.valueOf(tabelaUsuarios.getModel().getValueAt(linha, 2).toString()))
-				.setSenha(tabelaUsuarios.getModel().getValueAt(linha, 3).toString());
-	}
-
-	/**
-	 * Definir modelo da tabela
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static DefaultTableModel createModel() {
-		return (new DefaultTableModel(new Object[][] {}, new String[] { "Nome", "Email", "Status", "Senha" }) {
-
-			private static final long serialVersionUID = 1L;
-
-			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class };
-
-			public Class getColumnClass(int columnIndex) {
-				return columnTypes[columnIndex];
-			}
-		});
+				.setSenha(tabelaUsuarios.getModel().getValueAt(linha, 3).toString())
+				.setId(Integer.parseInt(tabelaUsuarios.getModel().getValueAt(linha, 4).toString()));
 	}
 
 	/**
@@ -212,12 +199,22 @@ public class PainelUsuarios extends JPanel {
 		listaUsuarios = (List<EntidadeUsuario>) ObjectDao.listar("from EntidadeUsuario");
 
 		listaUsuarios.forEach(usuario -> {
-			usuario.setStatus(Status.OFFLINE);
-			modelo.addRow(new String[] { usuario.getNome(), usuario.getEmail(), usuario.getStatus().toString(),
-					usuario.getSenha() });
-		});
 
+			if (Servidor.getServidor().getMapaUsuarios().containsKey(usuario)) {
+
+				Servidor.getServidor().getMapaUsuarios().entrySet().forEach(usuarioAux -> {
+					if (usuarioAux.getKey().equals(usuario)) {
+						EntidadeUsuario usuarioMapa = usuarioAux.getKey();
+						usuario.setStatus(usuarioMapa.getStatus());
+					}
+				});
+			} else {
+				usuario.setStatus(Status.OFFLINE);
+			}
+		});
+		modelo = new ResultadoModel(listaUsuarios);
 		tabelaUsuarios.setModel(modelo);
+
 		tabelaUsuarios.getColumnModel().getColumn(0).setResizable(false);
 		tabelaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(175);
 		tabelaUsuarios.getColumnModel().getColumn(1).setResizable(false);
