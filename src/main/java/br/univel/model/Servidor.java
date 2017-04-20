@@ -47,13 +47,15 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	private void atualizarStatusUsuarios() {
-		try {
-			for (InterfaceUsuario usuario : mapaUsuarios.values()) {
-				usuario.receberListaParticipantes(new ArrayList<EntidadeUsuario>(mapaUsuarios.keySet()));
+		if (mapaUsuarios != null) {
+			try {
+				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
+					usuario.receberListaParticipantes(new ArrayList<EntidadeUsuario>(mapaUsuarios.keySet()));
+				}
+			} catch (Exception e) {
+				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + e.toString());
+				return;
 			}
-		} catch (RemoteException e) {
-			PainelServidor.setLog("Erro ao atualizar lista de usuarios");
-			return;
 		}
 		PainelServidor.setLog("Atualizando status dos usuarios");
 	}
@@ -63,8 +65,9 @@ public class Servidor implements InterfaceServidor, Runnable {
 			throws RemoteException {
 		PainelServidor.setLog("Alguem esta tentando se conectar");
 		String senha = Md5Util.getMD5Checksum(usuario.getSenha());
-		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(String.format(
-				"from EntidadeUsuario where user_email like %s and user_password like %s", usuario.getEmail(), senha));
+		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
+				String.format("from EntidadeUsuario where user_email like '%s' and user_password like '%s'",
+						usuario.getEmail(), senha));
 		if (usuarioValido == null) {
 			PainelServidor.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
 			return null;
