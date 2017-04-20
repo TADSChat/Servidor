@@ -185,6 +185,7 @@ public class PainelUsuarios extends JPanel {
 
 				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
 				PainelPrincipal.getPainelAbas().setSelectedIndex(2);
+				PainelPrincipal.getPainelAbas().setEnabledAt(1, false);
 			}
 		};
 	}
@@ -198,6 +199,7 @@ public class PainelUsuarios extends JPanel {
 
 				PainelPrincipal.getPainelAbas().add("NOVO USUARIO", dados);
 				PainelPrincipal.getPainelAbas().setSelectedIndex(2);
+				PainelPrincipal.getPainelAbas().setEnabledAt(1, false);
 			}
 		};
 	}

@@ -154,12 +154,12 @@ public class DadosUsuario extends JPanel {
 			tfNome.setText(usuario.getNome());
 			tfEmail.setText(usuario.getEmail());
 			incluir = false;
-		}else if(tfNome != null && tfEmail != null){
+		} else if (tfNome != null && tfEmail != null) {
 			tfNome.setText("");
 			tfEmail.setText("");
 			incluir = true;
 		}
-		if(tfSenha != null && tfConfSenha != null){
+		if (tfSenha != null && tfConfSenha != null) {
 			tfSenha.setText("");
 			tfConfSenha.setText("");
 		}
@@ -175,6 +175,7 @@ public class DadosUsuario extends JPanel {
 				tfSenha.setText("");
 				tfConfSenha.setText("");
 				PainelPrincipal.getPainelAbas().remove(2);
+				PainelPrincipal.getPainelAbas().setEnabledAt(1, true);
 			}
 		};
 	}
@@ -224,6 +225,7 @@ public class DadosUsuario extends JPanel {
 				}
 
 				PainelPrincipal.getPainelAbas().remove(2);
+				PainelPrincipal.getPainelAbas().setEnabledAt(1, true);
 				PainelUsuarios.atualizarTabela();
 			}
 		};
