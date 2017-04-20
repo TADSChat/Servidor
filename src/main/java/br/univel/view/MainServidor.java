@@ -109,7 +109,7 @@ public class MainServidor extends JFrame {
 		try {
 			IP = InetAddress.getLocalHost();
 		} catch (UnknownHostException e) {
-			JOptionPane.showMessageDialog(null, "Erro ao ler IP do servidor! Ver aquivo de log.");
+			JOptionPane.showMessageDialog(null, "Erro ao ler IP do servidor! Ver arquivo de log.");
 		}
 
 		EntidadeServidor servidor = (EntidadeServidor) ObjectDao
