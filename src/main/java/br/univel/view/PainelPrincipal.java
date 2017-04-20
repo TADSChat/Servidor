@@ -18,14 +18,15 @@ public class PainelPrincipal extends JFrame {
 
 	private static String ipServidor;
 	private static Integer portaServidor;
-	private JTabbedPane tabbedPane;
+	private static JTabbedPane painelAbas;
 
 	public static final int LARGURA = 600;
-	public static final int ALTURA = 400;
+	public static final int ALTURA = 450;
 	private Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public PainelPrincipal(String ipServidor, Integer portaServidor) {
-		setSize(LARGURA, ALTURA);
+		this.setSize(LARGURA, ALTURA);
+
 		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
 
 		this.setVisible(true);
@@ -43,18 +44,18 @@ public class PainelPrincipal extends JFrame {
 		gridBagLayout.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		painelAbas = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
 		gbc_tabbedPane.fill = GridBagConstraints.BOTH;
 		gbc_tabbedPane.gridx = 0;
 		gbc_tabbedPane.gridy = 0;
-		getContentPane().add(tabbedPane, gbc_tabbedPane);
+		getContentPane().add(painelAbas, gbc_tabbedPane);
 
-		PainelServidorView servidor = new PainelServidorView();
-		PainelUsuariosView usuarios = new PainelUsuariosView();
+		PainelServidor servidor = new PainelServidor();
+		PainelUsuarios usuarios = new PainelUsuarios();
 
-		tabbedPane.addTab("SERVIDOR", servidor);
-		tabbedPane.addTab("USUARIOS", usuarios);
+		painelAbas.addTab("SERVIDOR", servidor);
+		painelAbas.addTab("USUARIOS", usuarios);
 	}
 
 	/**
@@ -72,17 +73,26 @@ public class PainelPrincipal extends JFrame {
 	}
 
 	/**
-	 * @param ipServidor the ipServidor to set
+	 * @param ipServidor
+	 *            the ipServidor to set
 	 */
 	public static void setIpServidor(String ipServidor) {
 		PainelPrincipal.ipServidor = ipServidor;
 	}
 
 	/**
-	 * @param portaServidor the portaServidor to set
+	 * @param portaServidor
+	 *            the portaServidor to set
 	 */
 	public static void setPortaServidor(Integer portaServidor) {
 		PainelPrincipal.portaServidor = portaServidor;
+	}
+
+	/**
+	 * @return the painelAbas
+	 */
+	public static JTabbedPane getPainelAbas() {
+		return painelAbas;
 	}
 
 }

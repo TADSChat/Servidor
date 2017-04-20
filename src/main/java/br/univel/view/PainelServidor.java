@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
  * @author Dread
  *
  */
-public class PainelServidorView extends JPanel {
+public class PainelServidor extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,14 +40,11 @@ public class PainelServidorView extends JPanel {
 	private static JButton buttonIniciarServico = new JButton("Iniciar");
 	private static JButton buttonPararServico = new JButton("Parar");
 
-	public PainelServidorView() {
+	public PainelServidor() {
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setForeground(Color.WHITE);
 
 		jpServidor.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		this.setSize(PainelPrincipal.LARGURA, PainelPrincipal.ALTURA);
-
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 390, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0 };

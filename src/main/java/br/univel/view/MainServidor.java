@@ -149,7 +149,7 @@ public class MainServidor extends JFrame {
 				EntidadeServidor servidor = new EntidadeServidor();
 				servidor.setPortaServer(Integer.parseInt(tnPortaServidor.getText())).setIpServer(IP.getHostAddress());
 
-				ObjectDao.incluir(servidor);
+				//ObjectDao.incluir(servidor);
 				
 				dispose();
 				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());

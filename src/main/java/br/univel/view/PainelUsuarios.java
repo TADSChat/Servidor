@@ -9,40 +9,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 import br.univel.control.ObjectDao;
 import common.EntidadeUsuario;
 import common.Status;
-import javax.swing.border.EmptyBorder;
 
-public class PainelUsuariosView extends JPanel {
+public class PainelUsuarios extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private DefaultTableModel modelo = createModel();
-	private List<EntidadeUsuario> listaUsuarios = new ArrayList<>();
+	private static DefaultTableModel modelo = createModel();
+	private static List<EntidadeUsuario> listaUsuarios = new ArrayList<>();
 	private JPanel panel_1;
-	private JTable tabelaUsuarios;
+	private static JTable tabelaUsuarios;
 	private JButton btnNovo;
 	private JButton btnAlterar;
 	private JButton btnExcluir;
 	private JButton btnDesconectar;
 
-	public PainelUsuariosView() {
-		setBorder(new EmptyBorder(10, 10, 10, 10));
+	public PainelUsuarios() {
 		this.setSize(PainelPrincipal.LARGURA, PainelPrincipal.ALTURA);
 
+		adicionarComponentes();
+
+		atualizarTabela();
+	}
+
+	private void adicionarComponentes() {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 150, 150, 150, 251, 0 };
-		gridBagLayout.rowHeights = new int[] { 348, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 373, 25, 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
@@ -57,9 +59,9 @@ public class PainelUsuariosView extends JPanel {
 		add(panel_1, gbc_panel_1);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[] { 588, 0 };
-		gbl_panel_1.rowHeights = new int[] { 0, 0 };
+		gbl_panel_1.rowHeights = new int[] { 369, 0 };
 		gbl_panel_1.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panel_1.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_panel_1.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		panel_1.setLayout(gbl_panel_1);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -80,6 +82,7 @@ public class PainelUsuariosView extends JPanel {
 		scrollPane.setViewportView(tabelaUsuarios);
 
 		btnNovo = new JButton("Novo");
+		btnNovo.addActionListener(novoUsuario());
 		GridBagConstraints gbc_btnNovo = new GridBagConstraints();
 		gbc_btnNovo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnNovo.anchor = GridBagConstraints.NORTH;
@@ -89,6 +92,7 @@ public class PainelUsuariosView extends JPanel {
 		add(btnNovo, gbc_btnNovo);
 
 		btnAlterar = new JButton("Alterar");
+		btnAlterar.addActionListener(alterarUsuario());
 		GridBagConstraints gbc_btnAlterar = new GridBagConstraints();
 		gbc_btnAlterar.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnAlterar.anchor = GridBagConstraints.NORTH;
@@ -98,6 +102,7 @@ public class PainelUsuariosView extends JPanel {
 		add(btnAlterar, gbc_btnAlterar);
 
 		btnExcluir = new JButton("Excluir");
+		btnExcluir.addActionListener(excluirUsuario());
 		GridBagConstraints gbc_btnExcluir = new GridBagConstraints();
 		gbc_btnExcluir.insets = new Insets(0, 0, 0, 5);
 		gbc_btnExcluir.fill = GridBagConstraints.HORIZONTAL;
@@ -107,6 +112,7 @@ public class PainelUsuariosView extends JPanel {
 		add(btnExcluir, gbc_btnExcluir);
 
 		btnDesconectar = new JButton("Desconectar");
+		btnDesconectar.addActionListener(desconectarUsuario());
 		GridBagConstraints gbc_btnDesconectar = new GridBagConstraints();
 		gbc_btnDesconectar.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnDesconectar.anchor = GridBagConstraints.NORTH;
@@ -114,7 +120,68 @@ public class PainelUsuariosView extends JPanel {
 		gbc_btnDesconectar.gridy = 1;
 		add(btnDesconectar, gbc_btnDesconectar);
 
-		atualizarTabela();
+	}
+
+	private ActionListener desconectarUsuario() {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EntidadeUsuario usuario = getUsuarioTabela();
+			}
+		};
+	}
+
+	private ActionListener excluirUsuario() {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EntidadeUsuario usuario = getUsuarioTabela();
+			}
+		};
+	}
+
+	private ActionListener alterarUsuario() {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EntidadeUsuario usuario = getUsuarioTabela();
+
+				DadosUsuario dados = DadosUsuario.getDadosUsuario(usuario);
+
+				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
+				PainelPrincipal.getPainelAbas().setSelectedIndex(2);				
+			}
+		};
+	}
+
+	private ActionListener novoUsuario() {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DadosUsuario dados = DadosUsuario.getDadosUsuario(new EntidadeUsuario());
+
+				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
+				PainelPrincipal.getPainelAbas().setSelectedIndex(2);
+			}
+		};
+	}
+
+	private EntidadeUsuario getUsuarioTabela() {
+		if (tabelaUsuarios.getSelectedRow() < 0) {
+			JOptionPane.showMessageDialog(null, "Nenhum usuario foi selecionado!");
+			return null;
+		}
+
+		Integer linha = tabelaUsuarios.getSelectedRow();
+
+		return new EntidadeUsuario().setNome(tabelaUsuarios.getModel().getValueAt(linha, 0).toString())
+				.setEmail(tabelaUsuarios.getModel().getValueAt(linha, 1).toString())
+				.setStatus(Status.valueOf(tabelaUsuarios.getModel().getValueAt(linha, 2).toString()))
+				.setSenha(tabelaUsuarios.getModel().getValueAt(linha, 3).toString());
 	}
 
 	/**
@@ -123,12 +190,12 @@ public class PainelUsuariosView extends JPanel {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public DefaultTableModel createModel() {
-		return (new DefaultTableModel(new Object[][] {}, new String[] { "Nome", "Email", "Status" }) {
+	public static DefaultTableModel createModel() {
+		return (new DefaultTableModel(new Object[][] {}, new String[] { "Nome", "Email", "Status", "Senha" }) {
 
 			private static final long serialVersionUID = 1L;
 
-			Class[] columnTypes = new Class[] { String.class, String.class, String.class };
+			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class };
 
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
@@ -139,15 +206,18 @@ public class PainelUsuariosView extends JPanel {
 	/**
 	 * Atualizar tabela
 	 */
-	private void atualizarTabela() {
+	public static void atualizarTabela() {
 
+		listaUsuarios = null;
 		listaUsuarios = (List<EntidadeUsuario>) ObjectDao.listar("from EntidadeUsuario");
 
 		listaUsuarios.forEach(usuario -> {
 			usuario.setStatus(Status.OFFLINE);
-			modelo.addRow(new String[] { usuario.getEmail(), usuario.getStatus().toString() });
+			modelo.addRow(new String[] { usuario.getNome(), usuario.getEmail(), usuario.getStatus().toString(),
+					usuario.getSenha() });
 		});
 
+		tabelaUsuarios.setModel(modelo);
 		tabelaUsuarios.getColumnModel().getColumn(0).setResizable(false);
 		tabelaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(175);
 		tabelaUsuarios.getColumnModel().getColumn(1).setResizable(false);

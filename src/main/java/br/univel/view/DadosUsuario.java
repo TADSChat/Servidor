@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -17,7 +18,7 @@ import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
 import common.EntidadeUsuario;
 
-public class DadosUsuarioView extends JPanel {
+public class DadosUsuario extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField tfNome;
@@ -25,7 +26,13 @@ public class DadosUsuarioView extends JPanel {
 	private JPasswordField tfSenha;
 	private JPasswordField tfConfSenha;
 
-	public DadosUsuarioView() {
+	private static DadosUsuario dadosUsuario;
+	private EntidadeUsuario usuario;
+	private Boolean incluir = true;
+
+	private DadosUsuario(EntidadeUsuario usuario) {
+		this.usuario = usuario;
+
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0 };
@@ -137,7 +144,18 @@ public class DadosUsuarioView extends JPanel {
 		gbc_bntCancelar.gridx = 0;
 		gbc_bntCancelar.gridy = 5;
 		panel.add(btnCancelar, gbc_bntCancelar);
+		
+		configurarCampos();
+	}
 
+	private void configurarCampos() {
+		if (usuario != null) {
+			tfNome.setText(usuario.getNome());
+			tfEmail.setText(usuario.getEmail());
+			tfSenha.setText("");
+			tfConfSenha.setText("");
+			incluir = false;
+		}
 	}
 
 	private ActionListener cancelarAcao() {
@@ -149,6 +167,7 @@ public class DadosUsuarioView extends JPanel {
 				tfEmail.setText("");
 				tfSenha.setText("");
 				tfConfSenha.setText("");
+				PainelPrincipal.getPainelAbas().remove(2);
 			}
 		};
 	}
@@ -158,23 +177,57 @@ public class DadosUsuarioView extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String senha = "";
 				if (tfNome.getText().equals("") || tfEmail.getText().equals("") || tfSenha.getPassword().equals("")
 						|| tfConfSenha.getPassword().equals("")) {
 					JOptionPane.showMessageDialog(null, "Todos os campos devem ser preenchidos!");
 					return;
 				}
 
-				if (!tfSenha.getPassword().equals(tfConfSenha.getPassword())) {
-					JOptionPane.showMessageDialog(null, "As senhas não coincidem!");
-					return;
+				if (usuario == null) {
+					if (!Arrays.equals(tfSenha.getPassword(), tfConfSenha.getPassword())) {
+						JOptionPane.showMessageDialog(null, "As senhas não coincidem!");
+						tfEmail.transferFocus();
+						tfSenha.setText("");
+						tfConfSenha.setText("");
+						return;
+					}
+					senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
+				} else {
+					if (!Arrays.equals(null, tfSenha.getPassword())){
+						if (!Arrays.equals(tfSenha.getPassword(), tfConfSenha.getPassword())) {
+							JOptionPane.showMessageDialog(null, "As senhas não coincidem!");
+							tfEmail.transferFocus();
+							tfSenha.setText("");
+							tfConfSenha.setText("");
+							return;
+						}	
+						senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
+					} else {
+						senha = usuario.getSenha();
+					}
 				}
 
-				EntidadeUsuario usuario = new EntidadeUsuario();
-				usuario.setEmail(tfEmail.getText()).setNome(tfNome.getText())
-						.setSenha(Md5Util.getMD5Checksum(tfSenha.getPassword().toString()));
+				if (incluir){
+					ObjectDao.incluir(usuario);										
+				} else {
+					ObjectDao.alterar(usuario);					
+				}
 
-				ObjectDao.incluir(usuario);
+				PainelPrincipal.getPainelAbas().remove(2);
+				PainelUsuarios.atualizarTabela();
 			}
 		};
 	}
+
+	/**
+	 * @return the dadosUsuario
+	 */
+	public synchronized static DadosUsuario getDadosUsuario(EntidadeUsuario usuario) {
+		if (dadosUsuario == null) {
+			dadosUsuario = new DadosUsuario(usuario);
+		}
+		return dadosUsuario;
+	}
+
 }

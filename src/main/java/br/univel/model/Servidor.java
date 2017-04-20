@@ -16,7 +16,8 @@ import org.postgresql.util.MD5Digest;
 import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
 import br.univel.view.PainelPrincipal;
-import br.univel.view.PainelServidorView;
+import br.univel.view.PainelServidor;
+import common.Arquivo;
 import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
@@ -37,6 +38,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	private Servidor(String ipServidor, Integer portaServidor) {
 		this.ipServidor = ipServidor;
 		this.portaServidor = portaServidor;
+		this.threadMonitor = new Thread(this);
 		this.threadMonitor.start();
 	}
 
@@ -46,10 +48,10 @@ public class Servidor implements InterfaceServidor, Runnable {
 				usuario.receberListaParticipantes(new ArrayList<EntidadeUsuario>(mapaUsuarios.keySet()));
 			}
 		} catch (RemoteException e) {
-			PainelServidorView.setLog("Erro ao atualizar lista de usuarios");
+			PainelServidor.setLog("Erro ao atualizar lista de usuarios");
 			return;
 		}
-		PainelServidorView.setLog("Atualizando status dos usuarios");
+		PainelServidor.setLog("Atualizando status dos usuarios");
 	}
 
 	@Override
@@ -58,14 +60,14 @@ public class Servidor implements InterfaceServidor, Runnable {
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(String.format(
 				"from EntidadeUsuario where user_email like %s and user_password like %s", usuario.getEmail(), senha));
 		if (usuarioValido == null) {
-			PainelServidorView
+			PainelServidor
 					.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
 			return;
 		}
 
 		if (mapaUsuarios.get(usuarioValido) != null) {
-			PainelServidorView
-					.setLog(String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getNome()));
+			PainelServidor.setLog(
+					String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getNome()));
 			return;
 		}
 
@@ -74,13 +76,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 		atualizarStatusUsuarios();
 
-		PainelServidorView.setLog(String.format("Usuario %s se conectou", usuario.getNome()));
+		PainelServidor.setLog(String.format("Usuario %s se conectou", usuario.getNome()));
 	}
 
 	@Override
 	public void desconectarChat(EntidadeUsuario usuario) throws RemoteException {
 		if (mapaUsuarios.get(usuario) == null) {
-			PainelServidorView
+			PainelServidor
 					.setLog(String.format("Usuario %s tentou se desconectar sem uma sessao ativa", usuario.getNome()));
 			return;
 		}
@@ -94,13 +96,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public void enviarMensagem(EntidadeUsuario remetente, EntidadeUsuario destinatario, String mensagem)
 			throws RemoteException {
 		if (mapaUsuarios.get(destinatario) == null) {
-			PainelServidorView.setLog(String.format("Usuario %s tentou enviar uma mensagem ao usuario inativo %s",
+			PainelServidor.setLog(String.format("Usuario %s tentou enviar uma mensagem ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return;
 		}
 
 		mapaUsuarios.get(destinatario).receberMensagem(remetente, mensagem);
-		PainelServidorView.setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getNome(),
+		PainelServidor.setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 	}
 
@@ -113,34 +115,19 @@ public class Servidor implements InterfaceServidor, Runnable {
 				try {
 					usuarios.getValue().receberMensagem(remetente, mensagem);
 				} catch (Exception ex) {
-					PainelServidorView.setLog(String.format("Erro ao enviar a mensagem de %s para todos os contatos",
+					PainelServidor.setLog(String.format("Erro ao enviar a mensagem de %s para todos os contatos",
 							remetente.getNome()));
 				}
 			}
 		}
-		PainelServidorView
+		PainelServidor
 				.setLog(String.format("Usuario %s enviou uma mensagem para todos os contatos", remetente.getNome()));
-	}
-
-	@Override
-	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, File arquivo)
-			throws RemoteException {
-
-		if (mapaUsuarios.get(destinatario) == null) {
-			PainelServidorView.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
-					remetente.getNome(), destinatario.getNome()));
-			return;
-		}
-
-		mapaUsuarios.get(destinatario).receberArquivo(remetente, arquivo);
-		PainelServidorView.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
-				destinatario.getNome()));
 	}
 
 	@Override
 	public void atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
 		if (mapaUsuarios.get(usuario) == null) {
-			PainelServidorView
+			PainelServidor
 					.setLog(String.format("Usuario %s tentou alterar o status sem estar conectado", usuario.getNome()));
 			return;
 		}
@@ -154,21 +141,19 @@ public class Servidor implements InterfaceServidor, Runnable {
 			}
 		}
 
-		PainelServidorView.setLog(String.format("Usuario %s alterou o status de %s para %s", usuario.getNome(),
+		PainelServidor.setLog(String.format("Usuario %s alterou o status de %s para %s", usuario.getNome(),
 				statusAntigo, usuario.getStatus()));
 	}
 
 	@Override
 	public void run() {
-		Thread currentThread = Thread.currentThread();
-
 		try {
 			meuServidor = (InterfaceServidor) UnicastRemoteObject.exportObject(this, 0);
 			registry = LocateRegistry.createRegistry(portaServidor);
 			registry.rebind(InterfaceServidor.NOME, meuServidor);
-			PainelServidorView.setLog("Servidor iniciado com sucesso!");
+			PainelServidor.setLog("Servidor iniciado com sucesso!");
 		} catch (RemoteException e) {
-			PainelServidorView.setLog("Erro ao startar o servidor: \n" + e.toString());
+			PainelServidor.setLog("Erro ao startar o servidor: \n" + e.toString());
 		}
 
 	}
@@ -185,8 +170,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	public static void iniciarServidor() {
 		getServidor();
-		PainelServidorView.getButtonIniciarServico().setEnabled(false);
-		PainelServidorView.getButtonPararServico().setEnabled(true);
+		PainelServidor.getButtonIniciarServico().setEnabled(false);
+		PainelServidor.getButtonPararServico().setEnabled(true);
 	}
 
 	public static void pararServidor() {
@@ -196,12 +181,27 @@ public class Servidor implements InterfaceServidor, Runnable {
 			meuServidor = null;
 			servidor = null;
 
-			PainelServidorView.getButtonIniciarServico().setEnabled(true);
-			PainelServidorView.getButtonPararServico().setEnabled(false);
+			PainelServidor.getButtonIniciarServico().setEnabled(true);
+			PainelServidor.getButtonPararServico().setEnabled(false);
 
-			PainelServidorView.setLog("Servidor Finalizado!\n");
+			PainelServidor.setLog("Servidor Finalizado!");
 		} catch (NoSuchObjectException e) {
-			PainelServidorView.setLog("Erro ao desligar o servidor!\n" + e.toString());
+			PainelServidor.setLog("Erro ao desligar o servidor!\n" + e.toString());
 		}
+	}
+
+	@Override
+	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, Arquivo arquivo)
+			throws RemoteException {
+		if (mapaUsuarios.get(destinatario) == null) {
+			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
+					remetente.getNome(), destinatario.getNome()));
+			return;
+		}
+
+		mapaUsuarios.get(destinatario).receberArquivo(remetente, arquivo);
+		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
+				destinatario.getNome()));
+
 	}
 }

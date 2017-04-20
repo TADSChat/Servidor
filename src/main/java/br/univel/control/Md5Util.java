@@ -1,8 +1,8 @@
 package br.univel.control;
 
 
-import java.io.*;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Com base no código encontrado em:
@@ -11,24 +11,6 @@ import java.security.MessageDigest;
  */
 public class Md5Util {
 
-	private static byte[] createChecksum(String filename) throws Exception {
-		InputStream fis = new FileInputStream(filename);
-
-		byte[] buffer = new byte[1024];
-		MessageDigest complete = MessageDigest.getInstance("MD5");
-		int numRead;
-
-		do {
-			numRead = fis.read(buffer);
-			if (numRead > 0) {
-				complete.update(buffer, 0, numRead);
-			}
-		} while (numRead != -1);
-
-		fis.close();
-		return complete.digest();
-	}
-
 	/**
 	 * Retorna o md5 a partir do nome do arquivo.
 	 * 
@@ -36,19 +18,31 @@ public class Md5Util {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getMD5Checksum(String filename) {
-		byte[] b = null;
-		try {
-			b = createChecksum(filename);
-		} catch (Exception e) {
-			
-		}
-		String result = "";
-
-		for (int i = 0; i < b.length; i++) {
-			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
-		}
-		return result;
+	public static String getMD5Checksum(String string) {
+		return hashString(string, "SHA-256");
 	}
 
+	private static String hashString(String message, String algorithm) {
+		MessageDigest messageDigest = null;
+		try {
+			messageDigest = MessageDigest.getInstance(algorithm);
+			messageDigest.update(message.getBytes());
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		byte[] hashedBytes = messageDigest.digest();
+		return convertBytesToHex(hashedBytes);
+	}
+
+	private static String convertBytesToHex(byte[] bytes) {
+		StringBuffer hexString = new StringBuffer();
+		for (int i = 0; i < bytes.length; i++) {
+			String hex = Integer.toHexString(0xff & bytes[i]);
+			if (hex.length() == 1)
+				hexString.append('0');
+			hexString.append(hex);
+		}
+		return hexString.toString();
+	}
+	
 }
