@@ -169,7 +169,7 @@ public class PainelUsuarios extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				DadosUsuario dados = DadosUsuario.getDadosUsuario(new EntidadeUsuario());
 
-				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
+				PainelPrincipal.getPainelAbas().add("NOVO USUARIO", dados);
 				PainelPrincipal.getPainelAbas().setSelectedIndex(2);
 			}
 		};
