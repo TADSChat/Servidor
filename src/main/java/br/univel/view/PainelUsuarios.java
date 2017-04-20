@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,6 +124,20 @@ public class PainelUsuarios extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
+				
+				if (usuario == null){
+					return;
+				}
+				
+				if (usuario.getStatus().equals(Status.OFFLINE)){
+					return;
+				}
+				
+				try {
+					Servidor.getServidor().desconectarChat(usuario);
+				} catch (RemoteException e1) {
+					PainelServidor.setLog(String.format("Erro ao desconectar o usuario %s \n %s", usuario.getNome(), e1.toString()));
+				}
 			}
 		};
 	}
@@ -134,6 +149,10 @@ public class PainelUsuarios extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
 
+				if (usuario == null){
+					return;
+				}
+				
 				int dialogButton = JOptionPane.YES_NO_OPTION;
 				JOptionPane.showConfirmDialog(null,
 						String.format("Confirma a exclusao do usuário %s?", usuario.getNome()), "Atenção",
@@ -153,6 +172,10 @@ public class PainelUsuarios extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				EntidadeUsuario usuario = getUsuarioTabela();
+
+				if (usuario == null){
+					return;
+				}
 
 				DadosUsuario dados = DadosUsuario.getDadosUsuario(usuario);
 

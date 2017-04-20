@@ -22,17 +22,17 @@ import common.Status;
 public class DadosUsuario extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JTextField tfNome;
-	private JTextField tfEmail;
-	private JPasswordField tfSenha;
-	private JPasswordField tfConfSenha;
+	private static JTextField tfNome;
+	private static JTextField tfEmail;
+	private static JPasswordField tfSenha;
+	private static JPasswordField tfConfSenha;
 
 	private static DadosUsuario dadosUsuario;
-	private EntidadeUsuario usuario = null;
-	private Boolean incluir = true;
+	private static EntidadeUsuario usuario = null;
+	private static Boolean incluir = true;
 
 	private DadosUsuario(EntidadeUsuario usuario) {
-		this.usuario = usuario;
+		setUsuario(usuario);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
@@ -149,8 +149,7 @@ public class DadosUsuario extends JPanel {
 		configurarCampos();
 	}
 
-	private void configurarCampos() {
-		System.out.println(usuario.getId());
+	private static void configurarCampos() {
 		if (usuario.getId() != null) {
 			tfNome.setText(usuario.getNome());
 			tfEmail.setText(usuario.getEmail());
@@ -169,7 +168,6 @@ public class DadosUsuario extends JPanel {
 				tfEmail.setText("");
 				tfSenha.setText("");
 				tfConfSenha.setText("");
-				usuario = null;
 				PainelPrincipal.getPainelAbas().remove(2);
 			}
 		};
@@ -232,6 +230,15 @@ public class DadosUsuario extends JPanel {
 		if (dadosUsuario == null) {
 			dadosUsuario = new DadosUsuario(usuario);
 		}
+		setUsuario(usuario);
 		return dadosUsuario;
+	}
+
+	/**
+	 * @param usuario the usuario to set
+	 */
+	public static void setUsuario(EntidadeUsuario usuario) {
+		DadosUsuario.usuario = usuario;
+		configurarCampos();
 	}
 }
