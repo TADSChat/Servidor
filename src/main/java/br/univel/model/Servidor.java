@@ -1,6 +1,5 @@
 package br.univel.model;
 
-import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.postgresql.util.MD5Digest;
 
 import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
