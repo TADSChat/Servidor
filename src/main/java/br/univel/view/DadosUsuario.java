@@ -156,6 +156,12 @@ public class DadosUsuario extends JPanel {
 			tfSenha.setText("");
 			tfConfSenha.setText("");
 			incluir = false;
+		}else{
+			tfNome.setText("");
+			tfEmail.setText("");
+			tfSenha.setText("");
+			tfConfSenha.setText("");
+			incluir = true;
 		}
 	}
 
