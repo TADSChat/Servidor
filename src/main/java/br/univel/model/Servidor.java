@@ -7,6 +7,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -31,6 +32,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	private static Registry registry;
 
 	private static Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
+	private static List<EntidadeUsuario> listaUsuarios;
 
 	private Servidor(String ipServidor, Integer portaServidor) {
 		this.ipServidor = ipServidor;
@@ -49,8 +51,12 @@ public class Servidor implements InterfaceServidor, Runnable {
 	private void atualizarStatusUsuarios() {
 		if (mapaUsuarios != null) {
 			try {
+				listaUsuarios = new ArrayList<>();
+				for (EntidadeUsuario usuario : mapaUsuarios.keySet()) {
+					listaUsuarios.add(usuario);
+				}
 				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
-					usuario.receberListaParticipantes(new ArrayList<EntidadeUsuario>(mapaUsuarios.keySet()));
+					usuario.receberListaParticipantes(listaUsuarios);
 				}
 			} catch (Exception e) {
 				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + e.toString());
@@ -66,8 +72,9 @@ public class Servidor implements InterfaceServidor, Runnable {
 		PainelServidor.setLog("Alguem esta tentando se conectar");
 		String senha = Md5Util.getMD5Checksum(usuario.getSenha());
 
-		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao
-				.consultarByQuery(String.format("from EntidadeUsuario where user_email like '%s'", usuario.getEmail()));
+		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
+				String.format("from EntidadeUsuario where user_email like '%s' and user_password like '%s'",
+						usuario.getEmail(), senha));
 
 		if (usuarioValido == null) {
 			PainelServidor.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
