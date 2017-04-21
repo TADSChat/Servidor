@@ -200,7 +200,6 @@ public class Servidor implements InterfaceServidor, Runnable {
 		}
 	}
 
-	@Override
 	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, Arquivo arquivo)
 			throws RemoteException {
 		if (mapaUsuarios.get(destinatario) == null) {
@@ -213,5 +212,19 @@ public class Servidor implements InterfaceServidor, Runnable {
 		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 
+	}
+
+	@Override
+	public InterfaceUsuario buscarDestinatario(EntidadeUsuario remetente, EntidadeUsuario destinatario)
+			throws RemoteException {
+		if (mapaUsuarios.get(destinatario) == null) {
+			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
+					remetente.getNome(), destinatario.getNome()));
+			return null;
+		}
+
+		PainelServidor.setLog(String.format("Usuario %s solicitou o envio de um arquivo ao usuario %s", remetente.getNome(),
+				destinatario.getNome()));
+		return mapaUsuarios.get(destinatario);
 	}
 }
