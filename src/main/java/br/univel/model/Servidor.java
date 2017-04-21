@@ -31,7 +31,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	private static Servidor servidor;
 	private static Registry registry;
 
-	private static Map<EntidadeUsuario, InterfaceUsuario> mapaUsuarios = new HashMap<>();
+	private static Map<Integer, InterfaceUsuario> mapaUsuarios = new HashMap<>();
 	private static List<EntidadeUsuario> listaUsuarios;
 
 	private Servidor(String ipServidor, Integer portaServidor) {
@@ -44,7 +44,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	/**
 	 * @return the mapaUsuarios
 	 */
-	public static Map<EntidadeUsuario, InterfaceUsuario> getMapaUsuarios() {
+	public static Map<Integer, InterfaceUsuario> getMapaUsuarios() {
 		return mapaUsuarios;
 	}
 
@@ -52,7 +52,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 		if (mapaUsuarios != null) {
 			try {
 				listaUsuarios = new ArrayList<>();
-				for (EntidadeUsuario usuario : mapaUsuarios.keySet()) {
+				for (Integer idUsuario : mapaUsuarios.keySet()) {
+					EntidadeUsuario usuario = getUsuario(idUsuario);
 					listaUsuarios.add(usuario);
 				}
 				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
@@ -64,6 +65,11 @@ public class Servidor implements InterfaceServidor, Runnable {
 			}
 		}
 		PainelServidor.setLog("Atualizando status dos usuarios");
+	}
+
+	public static EntidadeUsuario getUsuario(final Integer idUsuario) {
+		return (EntidadeUsuario) ObjectDao.getObjectDao()
+				.consultarByQuery(String.format("from EntidadeUsuario where user_id = %d", idUsuario));
 	}
 
 	@Override
@@ -88,7 +94,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		}
 
 		usuarioValido.setStatus(Status.ONLINE);
-		mapaUsuarios.put(usuarioValido, interfaceUsuario);
+		mapaUsuarios.put(usuarioValido.getId(), interfaceUsuario);
 
 		atualizarStatusUsuarios();
 
@@ -126,8 +132,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	@Override
 	public void enviarMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
-		for (Entry<EntidadeUsuario, InterfaceUsuario> usuarios : mapaUsuarios.entrySet()) {
-			if (usuarios.getKey().equals(remetente)) {
+		for (Entry<Integer, InterfaceUsuario> usuarios : mapaUsuarios.entrySet()) {
+			if (usuarios.getKey().equals(remetente.getId())) {
 				continue;
 			} else {
 				try {
@@ -144,15 +150,21 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	@Override
 	public void atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
-		if (mapaUsuarios.get(usuario) == null) {
+		for (Integer idUsu : mapaUsuarios.keySet()) {
+			EntidadeUsuario u = getUsuario(idUsu); 
+			System.out.println(u.equals(usuario));
+			System.out.println("Mapa.: " + u);
+			System.out.println("Param: " + usuario + "\n");
+		}
+		if (!mapaUsuarios.containsKey(usuario.getId())) {
 			PainelServidor
 					.setLog(String.format("Usuario %s tentou alterar o status sem estar conectado", usuario.getNome()));
 			return;
 		}
 
 		String statusAntigo = "";
-		for (Entry<EntidadeUsuario, InterfaceUsuario> oldUsuario : mapaUsuarios.entrySet()) {
-			EntidadeUsuario usuarioAux = oldUsuario.getKey();
+		for (Entry<Integer, InterfaceUsuario> oldUsuario : mapaUsuarios.entrySet()) {
+			EntidadeUsuario usuarioAux = getUsuario(oldUsuario.getKey());
 			if (usuarioAux.getId() == usuario.getId()) {
 				statusAntigo = usuario.getStatus().toString();
 				break;

@@ -233,7 +233,7 @@ public class PainelUsuarios extends JPanel {
 
 				Servidor.getServidor().getMapaUsuarios().entrySet().forEach(usuarioAux -> {
 					if (usuarioAux.getKey().equals(usuario)) {
-						EntidadeUsuario usuarioMapa = usuarioAux.getKey();
+						EntidadeUsuario usuarioMapa = Servidor.getUsuario(usuarioAux.getKey());
 						usuario.setStatus(usuarioMapa.getStatus());
 					}
 				});
