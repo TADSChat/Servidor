@@ -1,5 +1,6 @@
 package br.univel.model;
 
+import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -59,6 +60,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
 					usuario.receberListaParticipantes(listaUsuarios);
 				}
+			} catch (NullPointerException n){
+				return;
 			} catch (Exception e) {
 				e.printStackTrace();
 				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + e.toString());
@@ -225,13 +228,14 @@ public class Servidor implements InterfaceServidor, Runnable {
 	@Override
 	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, Arquivo arquivo)
 			throws RemoteException {
+		
 		if (mapaUsuarios.get(destinatario.getId()) == null) {
 			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return;
 		}
 
-		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, arquivo);
+		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, new Arquivo());
 		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 
