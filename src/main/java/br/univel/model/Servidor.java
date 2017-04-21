@@ -65,9 +65,10 @@ public class Servidor implements InterfaceServidor, Runnable {
 			throws RemoteException {
 		PainelServidor.setLog("Alguem esta tentando se conectar");
 		String senha = Md5Util.getMD5Checksum(usuario.getSenha());
-		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
-				String.format("from EntidadeUsuario where user_email like '%s' and user_password like '%s'",
-						usuario.getEmail(), senha));
+
+		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao
+				.consultarByQuery(String.format("from EntidadeUsuario where user_email like '%s'", usuario.getEmail()));
+
 		if (usuarioValido == null) {
 			PainelServidor.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
 			return null;
@@ -84,7 +85,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 		atualizarStatusUsuarios();
 
-		PainelServidor.setLog(String.format("Usuario %s se conectou", usuario.getNome()));
+		PainelServidor.setLog(String.format("Usuario %s se conectou", usuarioValido.getNome()));
 
 		return usuarioValido;
 	}
@@ -223,8 +224,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return null;
 		}
 
-		PainelServidor.setLog(String.format("Usuario %s solicitou o envio de um arquivo ao usuario %s", remetente.getNome(),
-				destinatario.getNome()));
+		PainelServidor.setLog(String.format("Usuario %s solicitou o envio de um arquivo ao usuario %s",
+				remetente.getNome(), destinatario.getNome()));
 		return mapaUsuarios.get(destinatario);
 	}
 }
