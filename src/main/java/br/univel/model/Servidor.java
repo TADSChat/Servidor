@@ -119,13 +119,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 	@Override
 	public void enviarMensagem(EntidadeUsuario remetente, EntidadeUsuario destinatario, String mensagem)
 			throws RemoteException {
-		if (mapaUsuarios.get(destinatario) == null) {
+		if (mapaUsuarios.get(destinatario.getId()) == null) {
 			PainelServidor.setLog(String.format("Usuario %s tentou enviar uma mensagem ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return;
 		}
 
-		mapaUsuarios.get(destinatario).receberMensagem(remetente, mensagem);
+		mapaUsuarios.get(destinatario.getId()).receberMensagem(remetente, mensagem);
 		PainelServidor.setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 	}
