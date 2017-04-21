@@ -60,6 +60,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 					usuario.receberListaParticipantes(listaUsuarios);
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + e.toString());
 				return;
 			}
@@ -87,7 +88,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return null;
 		}
 
-		if (mapaUsuarios.get(usuarioValido) != null) {
+		if (mapaUsuarios.get(usuarioValido.getId()) != null) {
 			PainelServidor.setLog(
 					String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getNome()));
 			return null;
@@ -105,7 +106,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	@Override
 	public void desconectarChat(EntidadeUsuario usuario) throws RemoteException {
-		if (mapaUsuarios.get(usuario) == null) {
+		if (mapaUsuarios.get(usuario.getId()) == null) {
 			PainelServidor
 					.setLog(String.format("Usuario %s tentou se desconectar sem uma sessao ativa", usuario.getNome()));
 			return;
@@ -222,13 +223,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, Arquivo arquivo)
 			throws RemoteException {
-		if (mapaUsuarios.get(destinatario) == null) {
+		if (mapaUsuarios.get(destinatario.getId()) == null) {
 			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return;
 		}
 
-		mapaUsuarios.get(destinatario).receberArquivo(remetente, arquivo);
+		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, arquivo);
 		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 
@@ -237,7 +238,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	@Override
 	public InterfaceUsuario buscarDestinatario(EntidadeUsuario remetente, EntidadeUsuario destinatario)
 			throws RemoteException {
-		if (mapaUsuarios.get(destinatario) == null) {
+		if (mapaUsuarios.get(destinatario.getId()) == null) {
 			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return null;
@@ -245,6 +246,6 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 		PainelServidor.setLog(String.format("Usuario %s solicitou o envio de um arquivo ao usuario %s",
 				remetente.getNome(), destinatario.getNome()));
-		return mapaUsuarios.get(destinatario);
+		return mapaUsuarios.get(destinatario.getId());
 	}
 }
