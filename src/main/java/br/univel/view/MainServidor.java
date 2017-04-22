@@ -58,15 +58,16 @@ public class MainServidor extends JFrame {
 
 		JPanel panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.insets = new Insets(10, 10, 10, 10);
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 0;
 		getContentPane().add(panel, gbc_panel);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] { 0, 0 };
-		gbl_panel.rowHeights = new int[] { 0, 0, 0, 0 };
+		gbl_panel.rowHeights = new int[] { 29, 0, 29, 31 };
 		gbl_panel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
+		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0 };
 		panel.setLayout(gbl_panel);
 
 		JLabel lblNewLabel = new JLabel("IP do Servidor");
@@ -78,6 +79,8 @@ public class MainServidor extends JFrame {
 
 		tfIpServidor = new JTextField();
 		GridBagConstraints gbc_tfIpServidor = new GridBagConstraints();
+		gbc_tfIpServidor.anchor = GridBagConstraints.NORTH;
+		gbc_tfIpServidor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfIpServidor.insets = new Insets(0, 0, 5, 0);
 		gbc_tfIpServidor.gridx = 0;
 		gbc_tfIpServidor.gridy = 1;
@@ -93,6 +96,7 @@ public class MainServidor extends JFrame {
 
 		tnPortaServidor = new JNumberField();
 		GridBagConstraints gbc_tfPortaServidor = new GridBagConstraints();
+		gbc_tfPortaServidor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfPortaServidor.insets = new Insets(0, 0, 5, 0);
 		gbc_tfPortaServidor.gridx = 0;
 		gbc_tfPortaServidor.gridy = 3;
@@ -101,6 +105,8 @@ public class MainServidor extends JFrame {
 
 		JButton btnIniciarServidor = new JButton("Iniciar");
 		GridBagConstraints gbc_btnIniciarServidor = new GridBagConstraints();
+		gbc_btnIniciarServidor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnIniciarServidor.anchor = GridBagConstraints.NORTH;
 		gbc_btnIniciarServidor.gridx = 0;
 		gbc_btnIniciarServidor.gridy = 4;
 		panel.add(btnIniciarServidor, gbc_btnIniciarServidor);
@@ -125,6 +131,7 @@ public class MainServidor extends JFrame {
 			tnPortaServidor.setEnabled(false);
 			tnPortaServidor.setText(servidor.getPortaServer().toString());
 			btnIniciarServidor.addActionListener(actionConectar());
+			iniciarServidor();
 		}
 	}
 
@@ -150,7 +157,7 @@ public class MainServidor extends JFrame {
 				servidor.setPortaServer(Integer.parseInt(tnPortaServidor.getText())).setIpServer(IP.getHostAddress());
 
 				ObjectDao.incluir(servidor);
-				
+
 				dispose();
 				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
 			}
@@ -167,10 +174,14 @@ public class MainServidor extends JFrame {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				dispose();
-				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
+				iniciarServidor();
 			}
 		};
+	}
+
+	protected void iniciarServidor() {
+		dispose();
+		new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
 	}
 
 	/**

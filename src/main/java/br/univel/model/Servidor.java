@@ -87,7 +87,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 						usuario.getEmail(), senha));
 
 		if (usuarioValido == null) {
-			PainelServidor.setLog(String.format("Usuario %s inexistente, mas tentou se conectar", usuario.getNome()));
+			PainelServidor.setLog(String.format("Usuario [%s] tentou se conectar, mas não possui cadastro", usuario.getNome()));
 			return null;
 		}
 
