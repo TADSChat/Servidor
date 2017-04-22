@@ -235,7 +235,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return;
 		}
 		
-		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, new Arquivo());
+		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, arquivo);
 		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
 
