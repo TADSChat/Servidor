@@ -14,9 +14,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
 import common.EntidadeUsuario;
+import common.Criptografia;
 import common.Status;
 
 public class DadosUsuario extends JPanel {
@@ -200,7 +200,7 @@ public class DadosUsuario extends JPanel {
 						tfConfSenha.setText("");
 						return;
 					}
-					senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
+					senha = Criptografia.criptografar(String.valueOf(tfSenha.getPassword()));
 				} else {
 					if (!Arrays.equals(null, tfSenha.getPassword())) {
 						if (!Arrays.equals(tfSenha.getPassword(), tfConfSenha.getPassword())) {
@@ -210,7 +210,7 @@ public class DadosUsuario extends JPanel {
 							tfConfSenha.setText("");
 							return;
 						}
-						senha = Md5Util.getMD5Checksum(String.valueOf(tfSenha.getPassword()));
+						senha = Criptografia.criptografar(String.valueOf(tfSenha.getPassword()));
 					} else {
 						senha = usuario.getSenha();
 					}

@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import br.univel.control.Md5Util;
 import br.univel.control.ObjectDao;
 import br.univel.view.PainelPrincipal;
 import br.univel.view.PainelServidor;
-import common.Arquivo;
 import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
+import common.Criptografia;
 import common.Status;
 
 public class Servidor implements InterfaceServidor, Runnable {
@@ -60,7 +59,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
 					usuario.receberListaParticipantes(listaUsuarios);
 				}
-			} catch (NullPointerException n){
+			} catch (NullPointerException n) {
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -72,7 +71,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	public static EntidadeUsuario getUsuario(final Integer idUsuario) {
-		return (EntidadeUsuario) ObjectDao.getObjectDao()
+		return (EntidadeUsuario) ObjectDao
 				.consultarByQuery(String.format("from EntidadeUsuario where user_id = %d", idUsuario));
 	}
 
@@ -80,14 +79,15 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public EntidadeUsuario conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario)
 			throws RemoteException {
 		PainelServidor.setLog("Alguem esta tentando se conectar");
-		String senha = Md5Util.getMD5Checksum(usuario.getSenha());
+		String senha = Criptografia.criptografar(usuario.getSenha());
 
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
 				String.format("from EntidadeUsuario where user_email like '%s' and user_password like '%s'",
 						usuario.getEmail(), senha));
 
 		if (usuarioValido == null) {
-			PainelServidor.setLog(String.format("Usuario [%s] tentou se conectar, mas não possui cadastro", usuario.getNome()));
+			PainelServidor.setLog(
+					String.format("Usuario [%s] tentou se conectar, mas não possui cadastro", usuario.getNome()));
 			return null;
 		}
 
@@ -115,7 +115,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return;
 		}
 
-		mapaUsuarios.remove(usuario);
+		mapaUsuarios.remove(usuario.getId());
+		PainelServidor.setLog(String.format("Usuario %s se desconectou", usuario.getNome()));
 
 		atualizarStatusUsuarios();
 	}
@@ -153,17 +154,11 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	@Override
-	public void atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
-		for (Integer idUsu : mapaUsuarios.keySet()) {
-			EntidadeUsuario u = getUsuario(idUsu); 
-			System.out.println(u.equals(usuario));
-			System.out.println("Mapa.: " + u);
-			System.out.println("Param: " + usuario + "\n");
-		}
+	public boolean atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
 		if (!mapaUsuarios.containsKey(usuario.getId())) {
 			PainelServidor
 					.setLog(String.format("Usuario %s tentou alterar o status sem estar conectado", usuario.getNome()));
-			return;
+			return false;
 		}
 
 		String statusAntigo = "";
@@ -177,6 +172,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 		PainelServidor.setLog(String.format("Usuario %s alterou o status de %s para %s", usuario.getNome(),
 				statusAntigo, usuario.getStatus()));
+
+		return true;
 	}
 
 	@Override
@@ -211,6 +208,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public static void pararServidor() {
 		try {
 			UnicastRemoteObject.unexportObject(registry, true);
+
 			registry = null;
 			meuServidor = null;
 			servidor = null;
@@ -228,13 +226,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 	@Override
 	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, File arquivo)
 			throws RemoteException {
-		
+
 		if (mapaUsuarios.get(destinatario.getId()) == null) {
 			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
 					remetente.getNome(), destinatario.getNome()));
 			return;
 		}
-		
+
 		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, arquivo);
 		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
 				destinatario.getNome()));
@@ -256,7 +254,17 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	@Override
-	public void alterarSenha(EntidadeUsuario usuario) throws RemoteException {
+	public boolean alterarSenha(EntidadeUsuario usuario) throws RemoteException {
+		if (!mapaUsuarios.containsKey(usuario.getId())) {
+			PainelServidor
+					.setLog(String.format("Usuario %s tentou alterar a senha sem estar conectado", usuario.getNome()));
+			return false;
+		}
 
+		ObjectDao.alterar(usuario);
+
+		PainelServidor.setLog(String.format("Usuario %s alterou a senha", usuario.getNome()));
+		
+		return true;
 	}
 }
