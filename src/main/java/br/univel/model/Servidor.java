@@ -322,20 +322,19 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	public void desconectarUsuario(EntidadeUsuario usuario) {
-		for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
-			if (usuarioMapa.getKey().equals(usuario.getId())) {
-				try {
+		try {
+			for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
+				if (usuarioMapa.getKey().equals(usuario.getId())) {
 					usuarioMapa.getValue().desconectarForcado();
-				} catch (RemoteException e) {
-					try {
-						PainelServidor
-								.setLog(String.format("Usuario [%s] foi desconectado do servidor", usuario.getNome()));
-						desconectarChat(usuario);
-					} catch (RemoteException e1) {
-						PainelServidor.setLog(String.format("Erro ao desconectar o usuario [%s] \n %s",
-								usuario.getNome(), e.toString()));
-					}
 				}
+			}
+		} catch (Exception e) {
+			try {
+				PainelServidor.setLog(String.format("Usuario [%s] foi desconectado do servidor", usuario.getNome()));
+				desconectarChat(usuario);
+			} catch (Exception e1) {
+				PainelServidor.setLog(
+						String.format("Erro ao desconectar o usuario [%s] \n %s", usuario.getNome(), e.toString()));
 			}
 		}
 	}

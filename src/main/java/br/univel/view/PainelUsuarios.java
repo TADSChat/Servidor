@@ -154,6 +154,11 @@ public class PainelUsuarios extends JPanel {
 					return;
 				}
 
+				if (!usuario.getStatus().equals(Status.OFFLINE)) {
+					JOptionPane.showMessageDialog(null, "Desconecte o usuario altes de exclui-lo!");
+					return;
+				}
+
 				int dialogButton = JOptionPane.YES_NO_OPTION;
 				int resposta = JOptionPane.showConfirmDialog(null,
 						String.format("Confirma a exclusao do usuário %s?", usuario.getNome()), "Atenção",
@@ -179,7 +184,11 @@ public class PainelUsuarios extends JPanel {
 					return;
 				}
 
-				System.out.println(usuario.getNome());
+				if (!usuario.getStatus().equals(Status.OFFLINE)) {
+					JOptionPane.showMessageDialog(null, "Desconecte o usuario altes de exclui-lo!");
+					return;
+				}
+
 				DadosUsuario dados = DadosUsuario.getDadosUsuario(usuario);
 
 				PainelPrincipal.getPainelAbas().add("USUARIOS", dados);
