@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -19,6 +20,7 @@ import javax.swing.ListSelectionModel;
 import br.univel.control.ObjectDao;
 import br.univel.model.Servidor;
 import common.EntidadeUsuario;
+import common.InterfaceUsuario;
 import common.Status;
 
 public class PainelUsuarios extends JPanel {
@@ -229,12 +231,10 @@ public class PainelUsuarios extends JPanel {
 
 		listaUsuarios.forEach(usuario -> {
 
-			if (Servidor.getServidor().getMapaUsuarios().containsKey(usuario)) {
-
-				Servidor.getServidor().getMapaUsuarios().entrySet().forEach(usuarioAux -> {
-					if (usuarioAux.getKey().equals(usuario)) {
-						EntidadeUsuario usuarioMapa = Servidor.getUsuario(usuarioAux.getKey());
-						usuario.setStatus(usuarioMapa.getStatus());
+			if (Servidor.getServidor().getMapaUsuarios().containsKey(usuario.getId())) {
+				Servidor.getListaUsuarios().forEach(usuarioAux -> {
+					if (usuarioAux.getId() == usuario.getId()) {
+						usuario.setStatus(usuarioAux.getStatus());
 					}
 				});
 			} else {
@@ -252,5 +252,9 @@ public class PainelUsuarios extends JPanel {
 		tabelaUsuarios.getColumnModel().getColumn(2).setPreferredWidth(50);
 		tabelaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabelaUsuarios.setDefaultEditor(Object.class, null);
+	}
+
+	public static List<EntidadeUsuario> getListaUsuarios() {
+		return listaUsuarios;
 	}
 }
