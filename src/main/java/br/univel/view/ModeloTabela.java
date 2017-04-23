@@ -6,7 +6,7 @@ import javax.swing.table.AbstractTableModel;
 
 import common.EntidadeUsuario;
 
-public class ResultadoModel extends AbstractTableModel {
+public class ModeloTabela extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private Object[][] matrix;
@@ -17,13 +17,13 @@ public class ResultadoModel extends AbstractTableModel {
 	 * 
 	 * @param dados
 	 */
-	public ResultadoModel(List<EntidadeUsuario> usuarios) {
+	public ModeloTabela(List<EntidadeUsuario> usuarios) {
 
 		int tempCli = usuarios.size();
 		matrix = new Object[tempCli][5];
 
-		if (usuarios.size() > 2){
-			usuarios.sort((o1, o2) -> o1.getNome().compareTo(o2.getNome()));			
+		if (usuarios.size() > 2) {
+			usuarios.sort((o1, o2) -> o1.getNome().compareTo(o2.getNome()));
 		}
 
 		int cont = 0;
@@ -35,6 +35,19 @@ public class ResultadoModel extends AbstractTableModel {
 			matrix[cont][4] = usuario.getId();
 			cont++;
 		}
+	}
+
+	@Override
+	public String getColumnName(int i) {
+		switch (i) {
+		case 0:
+			return "Nome";
+		case 1:
+			return "Email";
+		case 2:
+			return "Status";
+		}
+		return null;
 	}
 
 	@Override

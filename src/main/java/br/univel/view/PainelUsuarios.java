@@ -30,7 +30,7 @@ public class PainelUsuarios extends JPanel {
 	// private static DefaultTableModel modelo = createModel();
 	private static List<EntidadeUsuario> listaUsuarios = new ArrayList<>();
 	private JPanel panel_1;
-	private static ResultadoModel modelo;
+	private static ModeloTabela modelo;
 	private static JTable tabelaUsuarios;
 	private JButton btnNovo;
 	private JButton btnAlterar;
@@ -241,7 +241,7 @@ public class PainelUsuarios extends JPanel {
 				usuario.setStatus(Status.OFFLINE);
 			}
 		});
-		modelo = new ResultadoModel(listaUsuarios);
+		modelo = new ModeloTabela(listaUsuarios);
 		tabelaUsuarios.setModel(modelo);
 
 		tabelaUsuarios.getColumnModel().getColumn(0).setResizable(false);

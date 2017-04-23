@@ -138,11 +138,17 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return;
 		}
 
+		index = -1;
 		listaUsuarios.forEach(usuarioLista -> {
-			if (usuarioLista.getId() == usuario.getId()) {
-				listaUsuarios.remove(usuarioLista);
+			if (usuarioLista.getId().equals(usuario.getId())) {
+				index = listaUsuarios.indexOf(usuarioLista);
 			}
 		});
+
+		if (index >= 0) {
+			listaUsuarios.remove(index);
+		}
+
 		mapaUsuarios.remove(usuario.getId());
 		PainelServidor.setLog(String.format("Usuario %s se desconectou", usuario.getEmail()));
 
@@ -254,6 +260,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			meuServidor = null;
 			servidor = null;
 			mapaUsuarios = null;
+			listaUsuarios = null;
 
 			PainelServidor.getButtonIniciarServico().setEnabled(true);
 			PainelServidor.getButtonPararServico().setEnabled(false);
