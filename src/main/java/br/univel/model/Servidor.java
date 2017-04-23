@@ -48,7 +48,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		return mapaUsuarios;
 	}
 
-	private void atualizarStatusUsuarios() {
+	private void atualizarUsuarios() {
 		if (mapaUsuarios != null) {
 			try {
 				listaUsuarios = new ArrayList<>();
@@ -57,13 +57,22 @@ public class Servidor implements InterfaceServidor, Runnable {
 					listaUsuarios.add(usuario);
 				}
 				for (InterfaceUsuario usuario : mapaUsuarios.values()) {
+					try {
+						usuario.receberListaParticipantes(
+								listaUsuarios);
+					} catch (Exception e) {
+						e.printStackTrace();
+						PainelServidor.setLog("Usuario inativo foi removido da lista \n" + e.toString());
+						mapaUsuarios.remove(mapaUsuarios.entrySet());
+						continue;
+					}
+
 					usuario.receberListaParticipantes(listaUsuarios);
 				}
-			} catch (NullPointerException n) {
+			} catch (NullPointerException nullPointer) {
 				return;
-			} catch (Exception e) {
-				e.printStackTrace();
-				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + e.toString());
+			} catch (Exception exception) {
+				PainelServidor.setLog("Erro ao atualizar lista de usuarios \n " + exception.toString());
 				return;
 			}
 		}
@@ -78,7 +87,10 @@ public class Servidor implements InterfaceServidor, Runnable {
 	@Override
 	public EntidadeUsuario conectarChat(EntidadeUsuario usuario, InterfaceUsuario interfaceUsuario)
 			throws RemoteException {
-		PainelServidor.setLog("Alguem esta tentando se conectar");
+		if (usuario == null) {
+			return null;
+		}
+		PainelServidor.setLog(String.format("Usuario %s esta tentando se concetar", usuario.getNome()));
 		String senha = Criptografia.criptografar(usuario.getSenha());
 
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
@@ -98,9 +110,11 @@ public class Servidor implements InterfaceServidor, Runnable {
 		}
 
 		usuarioValido.setStatus(Status.ONLINE);
+		usuarioValido.setIpConexao(usuario.getIpConexao());
+		usuarioValido.setPortaConexao(usuario.getPortaConexao());
 		mapaUsuarios.put(usuarioValido.getId(), interfaceUsuario);
 
-		atualizarStatusUsuarios();
+		atualizarUsuarios();
 
 		PainelServidor.setLog(String.format("Usuario %s se conectou", usuarioValido.getNome()));
 
@@ -118,7 +132,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		mapaUsuarios.remove(usuario.getId());
 		PainelServidor.setLog(String.format("Usuario %s se desconectou", usuario.getNome()));
 
-		atualizarStatusUsuarios();
+		atualizarUsuarios();
 	}
 
 	@Override
@@ -264,7 +278,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		ObjectDao.alterar(usuario);
 
 		PainelServidor.setLog(String.format("Usuario %s alterou a senha", usuario.getNome()));
-		
+
 		return true;
 	}
 }

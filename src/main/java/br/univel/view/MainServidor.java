@@ -34,7 +34,7 @@ public class MainServidor extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private JTextField tfIpServidor = new JTextField();
-	private JNumberField tnPortaServidor = new JNumberField();
+	private JNumberField nfPortaServidor = new JNumberField();
 	private InetAddress IP;
 
 	Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
@@ -94,14 +94,14 @@ public class MainServidor extends JFrame {
 		gbc_lblNewLabel_1.gridy = 2;
 		panel.add(lblNewLabel_1, gbc_lblNewLabel_1);
 
-		tnPortaServidor = new JNumberField();
+		nfPortaServidor = new JNumberField();
 		GridBagConstraints gbc_tfPortaServidor = new GridBagConstraints();
 		gbc_tfPortaServidor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfPortaServidor.insets = new Insets(0, 0, 5, 0);
 		gbc_tfPortaServidor.gridx = 0;
 		gbc_tfPortaServidor.gridy = 3;
-		panel.add(tnPortaServidor, gbc_tfPortaServidor);
-		tnPortaServidor.setColumns(10);
+		panel.add(nfPortaServidor, gbc_tfPortaServidor);
+		nfPortaServidor.setColumns(10);
 
 		JButton btnIniciarServidor = new JButton("Iniciar");
 		GridBagConstraints gbc_btnIniciarServidor = new GridBagConstraints();
@@ -125,14 +125,15 @@ public class MainServidor extends JFrame {
 		tfIpServidor.setEnabled(false);
 
 		if (servidor == null) {
-			tnPortaServidor.setEnabled(true);
+			nfPortaServidor.setEnabled(true);
 			btnIniciarServidor.addActionListener(actionCriar());
 		} else {
-			tnPortaServidor.setEnabled(false);
-			tnPortaServidor.setText(servidor.getPortaServer().toString());
+			nfPortaServidor.setEnabled(false);
+			nfPortaServidor.setText(servidor.getPortaServer().toString());
 			btnIniciarServidor.addActionListener(actionConectar());
 			iniciarServidor();
 		}
+		nfPortaServidor.grabFocus();
 	}
 
 	/**
@@ -148,18 +149,18 @@ public class MainServidor extends JFrame {
 					JOptionPane.showMessageDialog(null, "IP Invalido para o servidor!");
 					return;
 				}
-				if (tnPortaServidor.getText().equals("")) {
+				if (nfPortaServidor.getText().equals("")) {
 					JOptionPane.showMessageDialog(null, "Porta Invalida para o servidor!");
 					return;
 				}
 
 				EntidadeServidor servidor = new EntidadeServidor();
-				servidor.setPortaServer(Integer.parseInt(tnPortaServidor.getText())).setIpServer(IP.getHostAddress());
+				servidor.setPortaServer(Integer.parseInt(nfPortaServidor.getText())).setIpServer(IP.getHostAddress());
 
 				ObjectDao.incluir(servidor);
 
 				dispose();
-				new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
+				new PainelPrincipal(tfIpServidor.getText(), nfPortaServidor.getNumber());
 			}
 
 		};
@@ -181,7 +182,7 @@ public class MainServidor extends JFrame {
 
 	protected void iniciarServidor() {
 		dispose();
-		new PainelPrincipal(tfIpServidor.getText(), tnPortaServidor.getNumber());
+		new PainelPrincipal(tfIpServidor.getText(), nfPortaServidor.getNumber());
 	}
 
 	/**
