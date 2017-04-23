@@ -119,6 +119,7 @@ public class PainelUsuarios extends JPanel {
 		add(btnDesconectar, gbc_btnDesconectar);
 
 		DadosUsuario.getDadosUsuario(new EntidadeUsuario());
+
 	}
 
 	private ActionListener desconectarUsuario() {
@@ -136,12 +137,8 @@ public class PainelUsuarios extends JPanel {
 					return;
 				}
 
-				try {
-					Servidor.getServidor().desconectarChat(usuario);
-				} catch (RemoteException e1) {
-					PainelServidor.setLog(
-							String.format("Erro ao desconectar o usuario %s \n %s", usuario.getNome(), e1.toString()));
-				}
+				Servidor.getServidor().desconectarUsuario(usuario);
+
 			}
 		};
 	}

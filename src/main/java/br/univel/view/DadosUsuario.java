@@ -219,6 +219,12 @@ public class DadosUsuario extends JPanel {
 				usuario.setNome(tfNome.getText()).setEmail(tfEmail.getText()).setSenha(senha).setStatus(Status.OFFLINE);
 
 				if (incluir) {
+					EntidadeUsuario usuarioIncluir = (EntidadeUsuario) ObjectDao.consultarByQuery(String.format("from EntidadeUsuario where user_email like '%s'", tfEmail.getText().trim()));
+					if (usuarioIncluir != null) {
+						JOptionPane.showMessageDialog(null, String.format("Usuario ja existe com o email [%s]!", usuarioIncluir.getEmail()));
+						tfEmail.setText("");
+						return;
+					}
 					ObjectDao.incluir(usuario);
 				} else {
 					ObjectDao.alterar(usuario);

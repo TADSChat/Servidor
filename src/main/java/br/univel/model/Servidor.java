@@ -1,28 +1,24 @@
 package br.univel.model;
 
-import java.awt.Panel;
 import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase;
-
 import br.univel.control.ObjectDao;
 import br.univel.view.PainelPrincipal;
 import br.univel.view.PainelServidor;
 import br.univel.view.PainelUsuarios;
+import common.Criptografia;
 import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
-import common.Criptografia;
 import common.Status;
 
 public class Servidor implements InterfaceServidor, Runnable {
@@ -142,11 +138,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 		listaUsuarios.forEach(usuarioLista -> {
 			if (usuarioLista.getId().equals(usuario.getId())) {
 				index = listaUsuarios.indexOf(usuarioLista);
+				System.out.println("DEsconectando o usuario " + index);
 			}
 		});
 
 		if (index >= 0) {
 			listaUsuarios.remove(index);
+			System.out.println("removendo indice " + index);
 		}
 
 		mapaUsuarios.remove(usuario.getId());
@@ -321,5 +319,24 @@ public class Servidor implements InterfaceServidor, Runnable {
 	 */
 	public static synchronized List<EntidadeUsuario> getListaUsuarios() {
 		return listaUsuarios;
+	}
+
+	public void desconectarUsuario(EntidadeUsuario usuario) {
+		for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
+			if (usuarioMapa.getKey().equals(usuario.getId())) {
+				try {
+					usuarioMapa.getValue().desconectarForcado();
+				} catch (RemoteException e) {
+					try {
+						PainelServidor
+								.setLog(String.format("Usuario [%s] foi desconectado do servidor", usuario.getNome()));
+						desconectarChat(usuario);
+					} catch (RemoteException e1) {
+						PainelServidor.setLog(String.format("Erro ao desconectar o usuario [%s] \n %s",
+								usuario.getNome(), e.toString()));
+					}
+				}
+			}
+		}
 	}
 }
