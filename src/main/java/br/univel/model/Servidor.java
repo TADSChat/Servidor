@@ -214,6 +214,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	public static void iniciarServidor() {
+		mapaUsuarios = new HashMap<>();
 		getServidor();
 		PainelServidor.getButtonIniciarServico().setEnabled(false);
 		PainelServidor.getButtonPararServico().setEnabled(true);
