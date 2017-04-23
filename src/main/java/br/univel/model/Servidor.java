@@ -97,19 +97,24 @@ public class Servidor implements InterfaceServidor, Runnable {
 		String senha = Criptografia.criptografar(usuario.getSenha());
 
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
-				String.format("from EntidadeUsuario where user_email like '%s' and user_password like '%s'",
+				String.format("from EntidadeUsuario where user_email like '%s'",
 						usuario.getEmail(), senha));
 
 		if (usuarioValido == null) {
 			PainelServidor.setLog(
 					String.format("Usuario [%s] tentou se conectar, mas não possui cadastro", usuario.getEmail()));
-			return null;
+			throw new RemoteException("Usuario não cadastrado!");
 		}
 
+		if (!usuarioValido.getSenha().equals(senha)){
+			PainelServidor.setLog(String.format("Usuario [%s] tentou se conectar com uma senha invalida", usuario.getEmail()));
+			throw new RemoteException("Senha invalida!");
+		}
+		
 		if (mapaUsuarios.get(usuarioValido.getId()) != null) {
 			PainelServidor.setLog(
 					String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getEmail()));
-			return null;
+			throw new RemoteException("Este usuario já está conectado!");
 		}
 
 		usuarioValido.setStatus(Status.ONLINE);
