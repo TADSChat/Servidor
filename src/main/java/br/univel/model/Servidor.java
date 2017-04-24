@@ -19,6 +19,7 @@ import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
 import common.Status;
+import common.TipoMensagem;
 
 public class Servidor implements InterfaceServidor, Runnable {
 
@@ -164,7 +165,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			throw new RemoteException("Este usuario esta desconectado!");
 		}
 
-		mapaUsuarios.get(destinatario.getId()).receberMensagem(remetente, mensagem);
+		mapaUsuarios.get(destinatario.getId()).receberMensagem(remetente, TipoMensagem.PRIVADA, mensagem);
 		PainelServidor.setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getEmail(),
 				destinatario.getEmail()));
 	}
@@ -176,7 +177,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 				continue;
 			} else {
 				try {
-					usuarios.getValue().receberMensagem(remetente, mensagem);
+					usuarios.getValue().receberMensagem(remetente, TipoMensagem.PUBLICA, mensagem);
 				} catch (Exception ex) {
 					PainelServidor.setLog(String.format("Erro ao enviar a mensagem de %s para todos os contatos",
 							remetente.getEmail()));
