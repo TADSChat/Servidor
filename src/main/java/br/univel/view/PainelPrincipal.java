@@ -3,14 +3,15 @@ package br.univel.view;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
+
+import br.univel.model.Servidor;
 
 public class PainelPrincipal extends JFrame {
 
@@ -25,17 +26,28 @@ public class PainelPrincipal extends JFrame {
 	private Dimension dimensaoTela = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public PainelPrincipal(String ipServidor, Integer portaServidor) {
+		setIpServidor(ipServidor);
+		setPortaServidor(portaServidor);
+
 		this.setSize(LARGURA, ALTURA);
-
-		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
-
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(LARGURA, ALTURA);
 		this.setResizable(false);
 
-		setIpServidor(ipServidor);
-		setPortaServidor(portaServidor);
+		setLocation((dimensaoTela.width - this.getSize().width) / 2, (dimensaoTela.height - this.getSize().height) / 2);
+
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent evt) {
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				int resposta = JOptionPane.showConfirmDialog(null, "Deseja realmente finalizar o servidor?", "Atenção", dialogButton);
+				if (resposta == JOptionPane.YES_OPTION) {
+					Servidor.getServidor().desconectarTodos();
+				} else {
+					setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+				}
+			}
+		});
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
