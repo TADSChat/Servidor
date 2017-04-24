@@ -300,7 +300,6 @@ public class Servidor implements InterfaceServidor, Runnable {
 		try {
 			for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
 				if (usuarioMapa.getKey().equals(usuario.getId())) {
-					// try{
 					usuarioMapa.getValue().desconectarForcado();
 					mapaUsuarios.remove(usuario.getId());
 					listaUsuarios.remove(usuario);
