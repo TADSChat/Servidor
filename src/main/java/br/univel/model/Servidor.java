@@ -1,6 +1,8 @@
 package br.univel.model;
 
+import java.net.SocketException;
 import java.rmi.RemoteException;
+import java.rmi.UnmarshalException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -298,7 +300,18 @@ public class Servidor implements InterfaceServidor, Runnable {
 		try {
 			for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
 				if (usuarioMapa.getKey().equals(usuario.getId())) {
-					usuarioMapa.getValue().desconectarForcado();
+					try{
+						usuarioMapa.getValue().desconectarForcado();
+						mapaUsuarios.remove(usuario.getId());
+						listaUsuarios.remove(usuario);
+					} catch (SocketException | UnmarshalException e) {
+						PainelServidor.setLog(String.format("Usuario %s [%s] foi desconectado do servidor", usuario.getNome(),
+								usuario.getEmail()));
+					} catch (RemoteException e) {
+						PainelServidor.setLog(String.format("Ocorreu um erro durante o processo de desconexão de %s [%s]! \n Erro: %s", usuario.getNome(),
+								usuario.getEmail(), e.getMessage()));
+						e.printStackTrace();
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -315,9 +328,9 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	public void desconectarTodos() {
 		try {
-			for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
-				usuarioMapa.getValue().desconectarForcado();
-			}
+			listaUsuarios.forEach(user->{
+				desconectarUsuario(user);
+			});
 			PainelServidor.setLog("Todos os usuários foram desconectados.");
 		} catch (Exception e) {
 			PainelServidor.setLog(String.format("Erro ao desconectar todos os usuarios \n %s", e.toString()));
