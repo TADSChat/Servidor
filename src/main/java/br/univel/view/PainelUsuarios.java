@@ -237,12 +237,17 @@ public class PainelUsuarios extends JPanel {
 
 		listaUsuarios.forEach(usuario -> {
 
-			if (Servidor.getServidor().getMapaUsuarios().containsKey(usuario.getId())) {
-				Servidor.getListaUsuarios().forEach(usuarioAux -> {
-					if (usuarioAux.getId() == usuario.getId()) {
-						usuario.setStatus(usuarioAux.getStatus());
-					}
-				});
+			if (Servidor.getServidor().getMapaUsuarios() != null) {
+
+				if (Servidor.getServidor().getMapaUsuarios().containsKey(usuario.getId())) {
+					Servidor.getListaUsuarios().forEach(usuarioAux -> {
+						if (usuarioAux.getId() == usuario.getId()) {
+							usuario.setStatus(usuarioAux.getStatus());
+						}
+					});
+				} else {
+					usuario.setStatus(Status.OFFLINE);
+				}
 			} else {
 				usuario.setStatus(Status.OFFLINE);
 			}

@@ -6,6 +6,7 @@ import java.rmi.UnmarshalException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,6 +250,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 	public static void iniciarServidor() {
 		mapaUsuarios = new HashMap<>();
+		listaUsuarios = new ArrayList<EntidadeUsuario>();
 		getServidor();
 		PainelServidor.getButtonIniciarServico().setEnabled(false);
 		PainelServidor.getButtonPararServico().setEnabled(true);
@@ -257,17 +259,19 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public static void pararServidor() {
 		try {
 			UnicastRemoteObject.unexportObject(registry, true);
-			Servidor.getServidor().desconectarTodos();
 
 			registry = null;
 			meuServidor = null;
 			servidor = null;
-			mapaUsuarios = null;
 			listaUsuarios = null;
+
+			Servidor.getServidor().desconectarTodos();
+			mapaUsuarios = null;
 
 			PainelServidor.getButtonIniciarServico().setEnabled(true);
 			PainelServidor.getButtonPararServico().setEnabled(false);
 
+			PainelUsuarios.atualizarTabela();
 			PainelServidor.setLog("Servidor Finalizado!");
 		} catch (Exception e) {
 			PainelServidor.setLog("Erro ao desligar o servidor!\n" + e.toString());
@@ -301,15 +305,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 			for (Entry<Integer, InterfaceUsuario> usuarioMapa : mapaUsuarios.entrySet()) {
 				if (usuarioMapa.getKey().equals(usuario.getId())) {
 					usuarioMapa.getValue().desconectarForcado();
-					mapaUsuarios.remove(usuario.getId());
-					listaUsuarios.remove(usuario);
+					desconectarChat(usuario);
 				}
 			}
 		} catch (Exception e) {
 			try {
 				PainelServidor.setLog(String.format("Usuario %s [%s] foi desconectado do servidor", usuario.getNome(),
 						usuario.getEmail()));
-				desconectarChat(usuario);
 			} catch (Exception e1) {
 				PainelServidor.setLog(String.format("Erro ao desconectar o usuario %s [%s] \n %s", usuario.getNome(),
 						usuario.getEmail(), e.toString()));
@@ -318,14 +320,15 @@ public class Servidor implements InterfaceServidor, Runnable {
 	}
 
 	public void desconectarTodos() {
-		try {
-			listaUsuarios.forEach(user -> {
-				desconectarUsuario(user);
+		if (mapaUsuarios != null) {
+			mapaUsuarios.values().forEach(usuario -> {
+				try {
+					usuario.desconectarForcado();
+				} catch (Exception e) {
+					PainelServidor.setLog(String.format("Erro ao desconectar todos os usuarios \n %s", e.toString()));
+				}
 			});
-			PainelServidor.setLog("Todos os usuários foram desconectados.");
-		} catch (Exception e) {
-			PainelServidor.setLog(String.format("Erro ao desconectar todos os usuarios \n %s", e.toString()));
+			PainelServidor.setLog("Todos os usuï¿½rios foram desconectados.");
 		}
-
 	}
 }
