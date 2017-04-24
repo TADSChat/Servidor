@@ -1,6 +1,5 @@
 package br.univel.model;
 
-import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -272,22 +271,6 @@ public class Servidor implements InterfaceServidor, Runnable {
 		} catch (NoSuchObjectException e) {
 			PainelServidor.setLog("Erro ao desligar o servidor!\n" + e.toString());
 		}
-	}
-
-	@Override
-	public void enviarArquivo(EntidadeUsuario remetente, EntidadeUsuario destinatario, File arquivo)
-			throws RemoteException {
-
-		if (mapaUsuarios.get(destinatario.getId()) == null) {
-			PainelServidor.setLog(String.format("Usuario %s tentou enviar um arquivo ao usuario inativo %s",
-					remetente.getNome(), destinatario.getNome()));
-			return;
-		}
-
-		mapaUsuarios.get(destinatario.getId()).receberArquivo(remetente, arquivo);
-		PainelServidor.setLog(String.format("Usuario %s enviou um arquivo ao usuario %s", remetente.getNome(),
-				destinatario.getNome()));
-
 	}
 
 	@Override
