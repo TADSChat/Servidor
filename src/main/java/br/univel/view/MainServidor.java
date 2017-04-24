@@ -20,7 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import br.univel.control.HibernateUtil;
+import br.univel.control.Log;
 import br.univel.control.ObjectDao;
+import br.univel.control.TipoLog;
 import common.EntidadeServidor;
 
 /**
@@ -116,6 +118,7 @@ public class MainServidor extends JFrame {
 			IP = InetAddress.getLocalHost();
 		} catch (UnknownHostException e) {
 			JOptionPane.showMessageDialog(null, "Erro ao ler IP do servidor! Ver arquivo de log.");
+			Log.adicionarLog(TipoLog.ERROR, e.getMessage() + e.getLocalizedMessage());
 		}
 
 		EntidadeServidor servidor = (EntidadeServidor) ObjectDao

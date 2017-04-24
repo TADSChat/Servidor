@@ -92,7 +92,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		if (usuario == null) {
 			return null;
 		}
-		PainelServidor.setLog(String.format("Usuario %s esta tentando se concetar", usuario.getEmail()));
+		PainelServidor.setLog(String.format("Usuario [%s] esta tentando se conectar", usuario.getEmail()));
 		String senha = Criptografia.criptografar(usuario.getSenha());
 
 		EntidadeUsuario usuarioValido = (EntidadeUsuario) ObjectDao.consultarByQuery(
@@ -101,8 +101,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 
 		if (usuarioValido == null) {
 			PainelServidor.setLog(
-					String.format("Usuario [%s] tentou se conectar, mas n√£o possui cadastro", usuario.getEmail()));
-			throw new RemoteException("Usuario n√£o cadastrado!");
+					String.format("Usuario [%s] tentou se conectar, mas n„o possui cadastro", usuario.getEmail()));
+			throw new RemoteException("Usuario n„o cadastrado!");
 		}
 
 		if (!usuarioValido.getSenha().equals(senha)){
@@ -112,8 +112,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 		
 		if (mapaUsuarios.get(usuarioValido.getId()) != null) {
 			PainelServidor.setLog(
-					String.format("Usuario %s tentou se conectar com uma sessao ja ativa", usuarioValido.getEmail()));
-			throw new RemoteException("Este usuario j√° est√° conectado!");
+					String.format("Usuario %s[%s] tentou se conectar com uma sessao ja ativa", usuarioValido.getNome(), usuarioValido.getEmail()));
+			throw new RemoteException("Este usuario j· est· conectado!");
 		}
 
 		usuarioValido.setStatus(Status.ONLINE);
@@ -125,7 +125,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		PainelUsuarios.atualizarTabela();
 		atualizarUsuarios();
 
-		PainelServidor.setLog(String.format("Usuario %s se conectou", usuarioValido.getEmail()));
+		PainelServidor.setLog(String.format("Usuario %s[%s] se conectou", usuarioValido.getNome(), usuarioValido.getEmail()));
 
 		return usuarioValido;
 	}
@@ -134,8 +134,8 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public void desconectarChat(EntidadeUsuario usuario) throws RemoteException {
 		if (mapaUsuarios.get(usuario.getId()) == null) {
 			PainelServidor
-					.setLog(String.format("Usuario %s tentou se desconectar sem uma sessao ativa", usuario.getEmail()));
-			throw new RemoteException("Voc√™ n√£o possui uma sess√£o ativa!");
+					.setLog(String.format("Usuario %s[%s] tentou se desconectar sem uma sessao ativa", usuario.getNome(), usuario.getEmail()));
+			throw new RemoteException("VocÍ n„o possui uma sess„o ativa!");
 		}
 
 		index = -1;
@@ -150,7 +150,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 		}
 
 		mapaUsuarios.remove(usuario.getId());
-		PainelServidor.setLog(String.format("Usuario %s se desconectou", usuario.getEmail()));
+		PainelServidor.setLog(String.format("Usuario %s[%s] se desconectou", usuario.getNome(), usuario.getEmail()));
 
 		PainelUsuarios.atualizarTabela();
 		atualizarUsuarios();
@@ -160,14 +160,14 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public void enviarMensagem(EntidadeUsuario remetente, EntidadeUsuario destinatario, String mensagem)
 			throws RemoteException {
 		if (mapaUsuarios.get(destinatario.getId()) == null) {
-			PainelServidor.setLog(String.format("Usuario %s tentou enviar uma mensagem ao usuario inativo %s",
-					remetente.getEmail(), destinatario.getEmail()));
+			PainelServidor.setLog(String.format("Usuario %s[%s] tentou enviar uma mensagem ao usuario inativo %s[%s]",
+					remetente.getNome(), remetente.getEmail(), destinatario.getNome(), destinatario.getEmail()));
 			throw new RemoteException("Este usuario esta desconectado!");
 		}
 
 		mapaUsuarios.get(destinatario.getId()).receberMensagem(remetente, TipoMensagem.PRIVADA, mensagem);
-		PainelServidor.setLog(String.format("Usuario %s enviou uma mensagem ao usuario %s", remetente.getEmail(),
-				destinatario.getEmail()));
+		PainelServidor.setLog(String.format("Usuario %s[%s] enviou uma mensagem ao usuario %s[%s]", remetente.getNome(), remetente.getEmail(),
+				destinatario.getNome(), destinatario.getEmail()));
 	}
 
 	@Override
@@ -179,21 +179,21 @@ public class Servidor implements InterfaceServidor, Runnable {
 				try {
 					usuarios.getValue().receberMensagem(remetente, TipoMensagem.PUBLICA, mensagem);
 				} catch (Exception ex) {
-					PainelServidor.setLog(String.format("Erro ao enviar a mensagem de %s para todos os contatos",
-							remetente.getEmail()));
+					PainelServidor.setLog(String.format("Erro ao enviar a mensagem de %s[%s] para todos os contatos",
+							remetente.getNome(), remetente.getEmail()));
 				}
 			}
 		}
 		PainelServidor
-				.setLog(String.format("Usuario %s enviou uma mensagem para todos os contatos", remetente.getEmail()));
+				.setLog(String.format("Usuario %s[%s] enviou uma mensagem para todos os contatos", remetente.getNome(), remetente.getEmail()));
 	}
 
 	@Override
 	public boolean atualizarStatus(EntidadeUsuario usuario) throws RemoteException {
 		if (!mapaUsuarios.containsKey(usuario.getId())) {
 			PainelServidor.setLog(
-					String.format("Usuario %s tentou alterar o status sem estar conectado", usuario.getEmail()));
-			throw new RemoteException("Sess√£o expirada, tente relogar!");
+					String.format("Usuario %s[%s] tentou alterar o status sem estar conectado", usuario.getNome(), usuario.getEmail()));
+			throw new RemoteException("Sess„o expirada, tente relogar!");
 		}
 
 		index = -1;
@@ -210,7 +210,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			usuarioAtualizar.setStatus(usuario.getStatus());
 			listaUsuarios.set(index, usuarioAtualizar);
 
-			PainelServidor.setLog(String.format("Usuario %s alterou o status de %s para %s", usuario.getNome(),
+			PainelServidor.setLog(String.format("Usuario %s[%s] alterou o status de %s para %s", usuario.getNome(), usuario.getEmail(),
 					statusAntigo.toString(), usuario.getStatus()));
 
 			PainelUsuarios.atualizarTabela();
@@ -219,7 +219,7 @@ public class Servidor implements InterfaceServidor, Runnable {
 			return true;
 		}
 
-		throw new RemoteException("Sess√£o expirada, tente relogar!");
+		throw new RemoteException("Sess„o expirada, tente relogar!");
 	}
 
 	@Override
@@ -275,13 +275,13 @@ public class Servidor implements InterfaceServidor, Runnable {
 	public boolean alterarSenha(EntidadeUsuario usuario) throws RemoteException {
 		if (!mapaUsuarios.containsKey(usuario.getId())) {
 			PainelServidor
-					.setLog(String.format("Usuario %s tentou alterar a senha sem estar conectado", usuario.getNome()));
-			throw new RemoteException("Sess√£o expirada, tente relogar!");
+					.setLog(String.format("Usuario %s[%s] tentou alterar a senha sem estar conectado", usuario.getNome(), usuario.getEmail()));
+			throw new RemoteException("Sess„o expirada, tente relogar!");
 		}
 
 		ObjectDao.alterar(usuario);
 
-		PainelServidor.setLog(String.format("Usuario %s alterou a senha", usuario.getNome()));
+		PainelServidor.setLog(String.format("Usuario %s[%s] alterou a senha", usuario.getNome(), usuario.getEmail()));
 
 		return true;
 	}
@@ -302,11 +302,11 @@ public class Servidor implements InterfaceServidor, Runnable {
 			}
 		} catch (Exception e) {
 			try {
-				PainelServidor.setLog(String.format("Usuario [%s] foi desconectado do servidor", usuario.getNome()));
+				PainelServidor.setLog(String.format("Usuario %s[%s] foi desconectado do servidor", usuario.getNome(), usuario.getEmail()));
 				desconectarChat(usuario);
 			} catch (Exception e1) {
 				PainelServidor.setLog(
-						String.format("Erro ao desconectar o usuario [%s] \n %s", usuario.getNome(), e.toString()));
+						String.format("Erro ao desconectar o usuario %s[%s] \n %s", usuario.getNome(), usuario.getEmail(), e.toString()));
 			}
 		}
 	}

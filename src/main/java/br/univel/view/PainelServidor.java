@@ -15,6 +15,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+import br.univel.control.Log;
+import br.univel.control.TipoLog;
 import br.univel.model.Servidor;
 import common.EntidadeServidor;
 import java.awt.event.ActionListener;
@@ -158,8 +160,11 @@ public class PainelServidor extends JPanel {
 	}
 
 	public static void setLog(String mensagem) {
-		taLog.append(dataHora.format(new Date()));
-		taLog.append(" " + mensagem + "\n");
+		StringBuffer string = new StringBuffer();
+		string.append(dataHora.format(new Date()));
+		string.append(" " + mensagem + "\n");
+		taLog.append(string.toString());
+		Log.adicionarLog(TipoLog.INFO, string.toString());
 	}
 
 	/**
